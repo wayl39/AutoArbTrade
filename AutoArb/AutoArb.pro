@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -25,14 +25,29 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        Admin.cpp \
+        DefineFields.cpp \
+        Trader.cpp \
+        User.cpp \
+        loginwidget.cpp \
         main.cpp \
-        MainWindow.cpp
+        MainWindow.cpp \
+        protocol.cpp
 
 HEADERS += \
-        MainWindow.h
+        Admin.h \
+        DefineFields.h \
+        MainWindow.h \
+        Trader.h \
+        User.h \
+        loginwidget.h \
+        protocol.h
 
 FORMS += \
-        MainWindow.ui
+        Admin.ui \
+        MainWindow.ui \
+        Trader.ui \
+        loginwidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
