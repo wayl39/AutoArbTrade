@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AdminWindow</class>
+ <widget class="QMainWindow" name="AdminWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_userManager">
+    <property name="title">
+     <string>用户管理</string>
+    </property>
+    <addaction name="addTraderAction"/>
+    <addaction name="deleteTraderAction"/>
+   </widget>
+   <widget class="QMenu" name="menu_fundManager">
+    <property name="title">
+     <string>资金账户管理</string>
+    </property>
+    <addaction name="addFundAction"/>
+    <addaction name="deleteFundAction"/>
+   </widget>
+   <widget class="QMenu" name="menu_riskManager">
+    <property name="title">
+     <string>风控管理</string>
+    </property>
+    <addaction name="addRiskAction"/>
+    <addaction name="deleteRiskAction"/>
+   </widget>
+   <addaction name="menu_userManager"/>
+   <addaction name="menu_fundManager"/>
+   <addaction name="menu_riskManager"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="addTraderAction">
+   <property name="text">
+    <string>添加交易账户</string>
+   </property>
+  </action>
+  <action name="deleteTraderAction">
+   <property name="text">
+    <string>删除交易账户</string>
+   </property>
+  </action>
+  <action name="addFundAction">
+   <property name="text">
+    <string>添加资金账户</string>
+   </property>
+  </action>
+  <action name="deleteFundAction">
+   <property name="text">
+    <string>删除资金账户</string>
+   </property>
+  </action>
+  <action name="addRiskAction">
+   <property name="text">
+    <string>添加风控指标</string>
+   </property>
+  </action>
+  <action name="deleteRiskAction">
+   <property name="text">
+    <string>删除风控指标</string>
+   </property>
+   <property name="iconText">
+    <string>删除风控指标</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

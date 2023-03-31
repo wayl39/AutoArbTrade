@@ -25,7 +25,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        ADialog.cpp \
         Admin.cpp \
+        AdminWindow.cpp \
         DefineFields.cpp \
         Trader.cpp \
         User.cpp \
@@ -35,7 +37,9 @@ SOURCES += \
         protocol.cpp
 
 HEADERS += \
+        ADialog.h \
         Admin.h \
+        AdminWindow.h \
         DefineFields.h \
         MainWindow.h \
         Trader.h \
@@ -44,7 +48,9 @@ HEADERS += \
         protocol.h
 
 FORMS += \
+        ADialog.ui \
         Admin.ui \
+        AdminWindow.ui \
         MainWindow.ui \
         Trader.ui \
         loginwidget.ui
