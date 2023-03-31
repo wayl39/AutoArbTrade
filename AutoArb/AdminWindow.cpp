@@ -4,6 +4,7 @@
 #include <QAction>
 #include <QVBoxLayout>
 #include "ADialog.h"
+#include "AddTraderWidget.h"
 
 AdminWindow::AdminWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,6 +24,8 @@ AdminWindow::~AdminWindow()
 void AdminWindow::slotAddTraderClicked()
 {
     ADialog dialog("添加交易账号");
+    AddTraderWidget widget;
+    dialog.addWidget(&widget);
 //    dialog.
     dialog.exec();
 }

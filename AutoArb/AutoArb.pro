@@ -26,6 +26,7 @@ CONFIG += c++11
 
 SOURCES += \
         ADialog.cpp \
+        AddTraderWidget.cpp \
         Admin.cpp \
         AdminWindow.cpp \
         DefineFields.cpp \
@@ -38,6 +39,7 @@ SOURCES += \
 
 HEADERS += \
         ADialog.h \
+        AddTraderWidget.h \
         Admin.h \
         AdminWindow.h \
         DefineFields.h \
@@ -49,6 +51,7 @@ HEADERS += \
 
 FORMS += \
         ADialog.ui \
+        AddTraderWidget.ui \
         Admin.ui \
         AdminWindow.ui \
         MainWindow.ui \

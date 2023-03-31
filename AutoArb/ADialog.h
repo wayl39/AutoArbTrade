@@ -12,7 +12,7 @@ class ADialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ADialog(const QString& title, QWidget *parent = nullptr);
+    explicit ADialog(const QString& title = "", QWidget *parent = nullptr);
     ~ADialog();
 
     void addWidget(QWidget* widget);
