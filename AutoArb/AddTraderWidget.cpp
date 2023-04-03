@@ -23,5 +23,5 @@ void AddTraderWidget::slotOkBtnClicked()
     dataMap.insert(DefineFields::UserId, ui->lineEdit_account->text());
     dataMap.insert(DefineFields::PassWord, ui->lineEdit_password->text());
     dataMap.insert(DefineFields::Mac, ui->lineEdit_mac->text());
-    SettingsLogic::GetInstance()->WriteSetting(dataMap);
+    SettingsLogic::GetInstance()->writeSetting(dataMap);
 }
