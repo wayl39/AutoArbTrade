@@ -4,6 +4,7 @@
 #include <QCoreApplication>
 #include <QFile>
 #include <QDebug>
+#include "DefineFields.h"
 
 SettingsLogic *SettingsLogic::GetInstance()
 {
@@ -28,7 +29,13 @@ void SettingsLogic::uninit()
 
 void SettingsLogic::writeSetting(const QVariantMap &dataMap)
 {
-
+    if (FuncType::AddTrader == dataMap.value(DefineFields::funcType).toString()){
+        mSetting->beginGroup(dataMap.value(DefineFields::UserId).toString());
+        mSetting->setValue(DefineFields::UserId,dataMap.value(DefineFields::UserId).toString());
+        mSetting->setValue(DefineFields::PassWord, dataMap.value(DefineFields::PassWord).toString());
+        mSetting->setValue(DefineFields::Mac, dataMap.value(DefineFields::Mac).toString());
+        mSetting->endGroup();
+    }
 }
 
 void SettingsLogic::initSetting()
