@@ -13,10 +13,18 @@ private:
 class DefineFields : public noncopyable
 {
 public:
+    static const QString funcType; // = "FUNC_TYPE";
     static const QString UserId; // = "USER_ID";
     static const QString PassWord; // = "PASSWORD";
     static const QString Mac; // = "MAC";
     static const QString FundListStr; // = "USER_ID_LIST";
+};
+
+class FuncType : public noncopyable
+{
+public:
+    static const QString AddTrader; // = "addTrader";
+    static const QString DeleteTrader; // = "deleteTrader";
 };
 
 #endif // DEFINEFIELDS_H

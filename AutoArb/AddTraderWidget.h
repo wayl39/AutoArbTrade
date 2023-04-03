@@ -15,6 +15,9 @@ public:
     explicit AddTraderWidget(QWidget *parent = nullptr);
     ~AddTraderWidget();
 
+public slots:
+    void slotOkBtnClicked();
+
 private:
     Ui::AddTraderWidget *ui;
 };

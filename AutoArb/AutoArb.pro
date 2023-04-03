@@ -30,6 +30,7 @@ SOURCES += \
         Admin.cpp \
         AdminWindow.cpp \
         DefineFields.cpp \
+        SettingsLogic.cpp \
         Trader.cpp \
         User.cpp \
         loginwidget.cpp \
@@ -44,6 +45,7 @@ HEADERS += \
         AdminWindow.h \
         DefineFields.h \
         MainWindow.h \
+        SettingsLogic.h \
         Trader.h \
         User.h \
         loginwidget.h \
