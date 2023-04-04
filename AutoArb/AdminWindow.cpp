@@ -26,7 +26,9 @@ void AdminWindow::slotAddTraderClicked()
     ADialog dialog("添加交易账号");
     AddTraderWidget widget;
     dialog.addWidget(&widget);
-    connect(&dialog, &ADialog::accepted, &widget, &AddTraderWidget::slotOkBtnClicked);
+    connect(&dialog, &ADialog::signalBtnOkClicked, &widget, &AddTraderWidget::slotOkBtnClicked);
+    connect(&widget, &AddTraderWidget::signalBtnOkClicked, &dialog, &ADialog::accepted);
+
     dialog.exec();
 }
 

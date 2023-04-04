@@ -7,6 +7,9 @@ ADialog::ADialog(const QString &title, QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowTitle(title);
+    connect(ui->pb_ok, &QPushButton::clicked, this, &ADialog::signalBtnOkClicked);
+    connect(ui->pb_cancel, &QPushButton::clicked, this, &ADialog::signalBtnCancelClicked);
+    connect(this, &ADialog::signalBtnCancelClicked, this, &ADialog::reject);
 }
 
 ADialog::~ADialog()

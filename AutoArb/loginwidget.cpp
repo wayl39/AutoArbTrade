@@ -2,7 +2,9 @@
 #include "ui_loginwidget.h"
 
 #include "protocol.h"
-
+#include "SettingsLogic.h"
+#include "DefineFields.h"
+#include <QSettings>
 #include <QMessageBox>
 
 /**
@@ -12,6 +14,13 @@ LoginWidget::LoginWidget(QTcpSocket *socket, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::LoginWidget),
     socket(socket)
+{
+    ui->setupUi(this);
+}
+
+LoginWidget::LoginWidget(QWidget *parent)
+    : QWidget (parent),
+      ui(new Ui::LoginWidget)
 {
     ui->setupUi(this);
 }
@@ -29,19 +38,19 @@ LoginWidget::~LoginWidget()
 */
 void LoginWidget::on_btnRegister_clicked()
 {
-    QString username = ui->leUsername->text();
-    QString password = ui->lePassword->text();
+//    QString username = ui->leUsername->text();
+//    QString password = ui->lePassword->text();
 
-    if(username.isEmpty() || password.isEmpty()){
-        QMessageBox::warning(this, "提示", "账号或密码不能为空");
-        return;
-    }
+//    if(username.isEmpty() || password.isEmpty()){
+//        QMessageBox::warning(this, "提示", "账号或密码不能为空");
+//        return;
+//    }
 
-    Protocol p(Protocol::regist);
-    p["username"] = username;
-    p["password"] = password;
+//    Protocol p(Protocol::regist);
+//    p["username"] = username;
+//    p["password"] = password;
 
-    socket->write(p.pack());
+//    socket->write(p.pack());
 }
 
 /**
@@ -49,18 +58,25 @@ void LoginWidget::on_btnRegister_clicked()
 */
 void LoginWidget::on_btnLogin_clicked()
 {
-    QString username = ui->leUsername->text();
-    QString password = ui->lePassword->text();
+    QString username = ui->lineEdit_Username->text();
+    QString password = ui->lineEdit_Password->text();
+    QString macAddress = ui->lineEdit_MacAddress->text();
 
     if(username.isEmpty() || password.isEmpty()){
         QMessageBox::warning(this, "提示", "账号或密码不能为空");
         return;
     }
-
-    Protocol p(Protocol::login);
-    p["type"] = "login";
-    p["username"] = username;
-    p["password"] = password;
-
-    socket->write(p.pack());
+    QVariantMap msgMap;
+    msgMap.insert(DefineFields::funcType, FuncType::Log);
+    msgMap.insert(DefineFields::UserId, username);
+    msgMap.insert(DefineFields::PassWord, password);
+    msgMap.insert(DefineFields::Mac, macAddress);
+    QString errorInfo;
+    SettingsLogic::GetInstance()->logProcFunc(msgMap, errorInfo);
+    if (errorInfo.isEmpty()){
+        emit signalLogSuccess(username);
+    } else {
+        ui->label_tip->setText(errorInfo);
+    }
+//    if (cliendIdList.contains())
 }

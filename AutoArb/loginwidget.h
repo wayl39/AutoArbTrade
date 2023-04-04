@@ -18,7 +18,11 @@ class LoginWidget : public QWidget
 
 public:
     explicit LoginWidget(QTcpSocket* socket, QWidget *parent = 0);
+    explicit LoginWidget(QWidget *parent = nullptr);
     ~LoginWidget();
+
+signals:
+    void signalLogSuccess(const QString& cliendId);
 
 private slots:
     void on_btnRegister_clicked();

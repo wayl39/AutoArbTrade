@@ -17,6 +17,11 @@ public:
 
     void addWidget(QWidget* widget);
 
+signals:
+    void signalBtnOkClicked();
+
+    void signalBtnCancelClicked();
+
 private:
     Ui::ADialog *ui;
 };

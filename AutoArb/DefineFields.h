@@ -18,11 +18,14 @@ public:
     static const QString PassWord; // = "PASSWORD";
     static const QString Mac; // = "MAC";
     static const QString FundListStr; // = "USER_ID_LIST";
+    static const QString Admin_Account; //= "Admin_Account";
+    static const QString Admin_Password; // = "Admin_Password";
 };
 
 class FuncType : public noncopyable
 {
 public:
+    static const QString Log; // = "Log";
     static const QString AddTrader; // = "addTrader";
     static const QString DeleteTrader; // = "deleteTrader";
 };
