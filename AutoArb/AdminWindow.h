@@ -15,6 +15,8 @@ public:
     explicit AdminWindow(QWidget *parent = nullptr);
     ~AdminWindow();
 
+public slots:
+    void slotAddTraderSuccess(const QString& cliendId);
 private slots:
     void slotAddTraderClicked();
     void slotDeleteTraderClicked();

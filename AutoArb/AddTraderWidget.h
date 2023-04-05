@@ -16,7 +16,7 @@ public:
     ~AddTraderWidget();
 
 signals:
-    void signalBtnOkClicked();
+    void signalBtnOkClicked(const QString& userId);
 
 public slots:
     void slotOkBtnClicked();

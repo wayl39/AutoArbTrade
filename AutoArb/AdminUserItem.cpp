@@ -1,0 +1,37 @@
+#include "AdminUserItem.h"
+#include "ui_AdminUserItem.h"
+
+AdminUserItem::AdminUserItem(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::AdminUserItem)
+{
+    ui->setupUi(this);
+    createWidget();
+    createLayout();
+    createConnect();
+}
+
+AdminUserItem::~AdminUserItem()
+{
+    delete ui;
+}
+
+void AdminUserItem::setItemName(const QString &text)
+{
+    ui->label_userId->setText(text);
+}
+
+void AdminUserItem::createWidget()
+{
+
+}
+
+void AdminUserItem::createLayout()
+{
+
+}
+
+void AdminUserItem::createConnect()
+{
+
+}
