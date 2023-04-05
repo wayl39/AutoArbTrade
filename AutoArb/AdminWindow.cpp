@@ -5,7 +5,10 @@
 #include <QVBoxLayout>
 #include "ADialog.h"
 #include "AddTraderWidget.h"
-#include "AddAccountWidget.h"
+//#include "AddAccountWidget.h"
+#include "SettingsLogic.h"
+#include <QSettings>
+#include "AdminUserItem.h"
 
 AdminWindow::AdminWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -22,6 +25,16 @@ AdminWindow::~AdminWindow()
     delete ui;
 }
 
+void AdminWindow::slotAddTraderSuccess(const QString &cliendId)
+{
+    QListWidgetItem* item = new QListWidgetItem;
+    AdminUserItem *widget = new AdminUserItem;
+    widget->setItemName(cliendId);
+    item->setSizeHint(QSize(200, 40));
+    ui->listWidget_trader->addItem(item);
+    ui->listWidget_trader->setItemWidget(item, widget);
+}
+
 void AdminWindow::slotAddTraderClicked()
 {
     ADialog dialog("添加交易账号");
@@ -29,6 +42,7 @@ void AdminWindow::slotAddTraderClicked()
     dialog.addWidget(&widget);
     connect(&dialog, &ADialog::signalBtnOkClicked, &widget, &AddTraderWidget::slotOkBtnClicked);
     connect(&widget, &AddTraderWidget::signalBtnOkClicked, &dialog, &ADialog::accept);
+    connect(&widget, &AddTraderWidget::signalBtnOkClicked, this, &AdminWindow::slotAddTraderSuccess);
 
     dialog.exec();
 }
@@ -41,10 +55,10 @@ void AdminWindow::slotDeleteTraderClicked()
 void AdminWindow::slotAddFundClicked()
 {
     ADialog dialog("添加资金账户");
-    AddAccountWidget widget;
-    dialog.addWidget(&widget);
-    connect(&dialog, &ADialog::signalBtnOkClicked, &widget, &AddAccountWidget::slotOkBtnClicked);
-    connect(&widget, &AddAccountWidget::signalBtnOkClicked, &dialog, &ADialog::accept);
+//    AddAccountWidget widget;
+//    dialog.addWidget(&widget);
+//    connect(&dialog, &ADialog::signalBtnOkClicked, &widget, &AddAccountWidget::slotOkBtnClicked);
+//    connect(&widget, &AddAccountWidget::signalBtnOkClicked, &dialog, &ADialog::accept);
 
     dialog.exec();
 }
@@ -87,6 +101,18 @@ void AdminWindow::createWidget()
 //    ui->menubar->addMenu(menu_userManager);
 //    ui->menubar->addMenu(menu_fundManager);
 //    ui->menubar->addMenu(menu_riskManager);
+    ui->stackedWidget->setCurrentWidget(ui->page_user);
+
+    QStringList cliendIdList = SettingsLogic::GetInstance()->getSetting()->childGroups();
+    foreach(auto cliendId, cliendIdList){
+        QListWidgetItem* item = new QListWidgetItem;
+        AdminUserItem *widget = new AdminUserItem;
+        widget->setItemName(cliendId);
+        item->setSizeHint(QSize(200, 40));
+        ui->listWidget_trader->addItem(item);
+        ui->listWidget_trader->setItemWidget(item, widget);
+
+    }
 }
 
 void AdminWindow::createLayout()

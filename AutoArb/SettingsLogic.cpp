@@ -37,6 +37,7 @@ void SettingsLogic::logProcFunc(const QVariantMap &dataMap, QString &errorInfo)
         return;
     }
     QStringList cliendIdList = mSetting->childGroups();
+//    qDebug() << __FUNCTION__ << cliendIdList;
     if (!cliendIdList.contains(username)){
         errorInfo = "没有此交易员账号，联系管理员添加";
         return;
@@ -51,9 +52,10 @@ void SettingsLogic::logProcFunc(const QVariantMap &dataMap, QString &errorInfo)
     if (macAddress != mSetting->value(DefineFields::Mac).toString()){
         errorInfo = "MAC填写错误";
     }
-    if (!errorInfo.isEmpty())
-        return;
     mSetting->endGroup();
+    if (!errorInfo.isEmpty()){
+        return;
+    }
 }
 
 QVariant SettingsLogic::getSettingValue(const QString &key, const QVariant &defaultValue)

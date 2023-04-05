@@ -40,7 +40,7 @@ void AddTraderWidget::slotOkBtnClicked()
         QMessageBox::critical(this, "添加交易员", errorInfo);
         return;
     }
-    emit signalBtnOkClicked();
+    emit signalBtnOkClicked(ui->lineEdit_account->text());
 }
 
 void AddTraderWidget::slotPVisibleBtnClicked()

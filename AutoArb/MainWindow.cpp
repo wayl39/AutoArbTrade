@@ -4,7 +4,7 @@
 #include "DefineFields.h"
 #include "SettingsLogic.h"
 #include "AdminWindow.h"
-//#include "
+#include "UserWindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -29,6 +29,8 @@ void MainWindow::slotLogSuccess(const QString &cliendId)
         m_adminWindow->show();
     } else {
         close();
+        UserWindow *userWidget = new UserWindow;
+        userWidget->show();
 
     }
 }

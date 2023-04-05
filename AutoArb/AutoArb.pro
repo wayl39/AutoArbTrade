@@ -26,14 +26,19 @@ CONFIG += c++11
 
 SOURCES += \
         ADialog.cpp \
-        AddAccountWidget.cpp \
+#        AddAccountWidget.cpp \
+    AddRiskWidget.cpp \
+    AddStragetyWidget.cpp \
         AddTraderWidget.cpp \
         Admin.cpp \
+    AdminUserItem.cpp \
         AdminWindow.cpp \
         DefineFields.cpp \
         SettingsLogic.cpp \
         Trader.cpp \
         User.cpp \
+    UserStrategyItem.cpp \
+    UserWindow.cpp \
         loginwidget.cpp \
         main.cpp \
         MainWindow.cpp \
@@ -41,26 +46,36 @@ SOURCES += \
 
 HEADERS += \
         ADialog.h \
-        AddAccountWidget.h \
+#        AddAccountWidget.h \
+    AddRiskWidget.h \
+    AddStragetyWidget.h \
         AddTraderWidget.h \
         Admin.h \
+    AdminUserItem.h \
         AdminWindow.h \
         DefineFields.h \
         MainWindow.h \
         SettingsLogic.h \
         Trader.h \
         User.h \
+    UserStrategyItem.h \
+    UserWindow.h \
         loginwidget.h \
         protocol.h
 
 FORMS += \
         ADialog.ui \
-        AddAccountWidget.ui \
+#        AddAccountWidget.ui \
+    AddRiskWidget.ui \
+    AddStragetyWidget.ui \
         AddTraderWidget.ui \
         Admin.ui \
+    AdminUserItem.ui \
         AdminWindow.ui \
         MainWindow.ui \
         Trader.ui \
+    UserStrategyItem.ui \
+    UserWindow.ui \
         loginwidget.ui
 
 # Default rules for deployment.
