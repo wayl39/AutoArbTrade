@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include "ADialog.h"
 #include "AddTraderWidget.h"
+#include "AddAccountWidget.h"
 
 AdminWindow::AdminWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -27,7 +28,7 @@ void AdminWindow::slotAddTraderClicked()
     AddTraderWidget widget;
     dialog.addWidget(&widget);
     connect(&dialog, &ADialog::signalBtnOkClicked, &widget, &AddTraderWidget::slotOkBtnClicked);
-    connect(&widget, &AddTraderWidget::signalBtnOkClicked, &dialog, &ADialog::accepted);
+    connect(&widget, &AddTraderWidget::signalBtnOkClicked, &dialog, &ADialog::accept);
 
     dialog.exec();
 }
@@ -39,7 +40,13 @@ void AdminWindow::slotDeleteTraderClicked()
 
 void AdminWindow::slotAddFundClicked()
 {
+    ADialog dialog("添加资金账户");
+    AddAccountWidget widget;
+    dialog.addWidget(&widget);
+    connect(&dialog, &ADialog::signalBtnOkClicked, &widget, &AddAccountWidget::slotOkBtnClicked);
+    connect(&widget, &AddAccountWidget::signalBtnOkClicked, &dialog, &ADialog::accept);
 
+    dialog.exec();
 }
 
 void AdminWindow::slotDeleteFundClicked()

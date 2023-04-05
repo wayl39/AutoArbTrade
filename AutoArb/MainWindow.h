@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "loginwidget.h"
 
+class AdminWindow;
 namespace Ui {
 class MainWindow;
 }
@@ -27,6 +28,7 @@ private:
 private:
     Ui::MainWindow *ui;
     LoginWidget* m_logWidget{Q_NULLPTR};
+    AdminWindow *m_adminWindow{Q_NULLPTR};
 };
 
 #endif // MAINWINDOW_H

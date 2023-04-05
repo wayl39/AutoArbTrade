@@ -26,6 +26,7 @@ CONFIG += c++11
 
 SOURCES += \
         ADialog.cpp \
+        AddAccountWidget.cpp \
         AddTraderWidget.cpp \
         Admin.cpp \
         AdminWindow.cpp \
@@ -40,6 +41,7 @@ SOURCES += \
 
 HEADERS += \
         ADialog.h \
+        AddAccountWidget.h \
         AddTraderWidget.h \
         Admin.h \
         AdminWindow.h \
@@ -53,6 +55,7 @@ HEADERS += \
 
 FORMS += \
         ADialog.ui \
+        AddAccountWidget.ui \
         AddTraderWidget.ui \
         Admin.ui \
         AdminWindow.ui \

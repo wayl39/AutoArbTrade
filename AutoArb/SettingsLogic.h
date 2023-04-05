@@ -23,7 +23,7 @@ public:
     QVariant getSettingValue(const QString& key, const QVariant &defaultValue = QVariant());
     void setSettingValue(const QString& key, const QVariant &value);
 
-    void writeSetting(const QVariantMap& dataMap);
+    void writeSetting(const QVariantMap& dataMap, QString& errorInfo);
 
     void deleteSetting(const QVariantMap& dataMap);
 

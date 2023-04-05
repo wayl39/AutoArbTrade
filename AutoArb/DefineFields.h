@@ -18,6 +18,7 @@ public:
     static const QString PassWord; // = "PASSWORD";
     static const QString Mac; // = "MAC";
     static const QString FundListStr; // = "USER_ID_LIST";
+    static const QString FundAccount; // = "fund_account";
     static const QString Admin_Account; //= "Admin_Account";
     static const QString Admin_Password; // = "Admin_Password";
 };
@@ -28,6 +29,8 @@ public:
     static const QString Log; // = "Log";
     static const QString AddTrader; // = "addTrader";
     static const QString DeleteTrader; // = "deleteTrader";
+    static const QString AddFundAccount; // = "addFundAccount";
+    static const QString DeleteFundAccount; // = "deleteFundAccount";
 };
 
 #endif // DEFINEFIELDS_H

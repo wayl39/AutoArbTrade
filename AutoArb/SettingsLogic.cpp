@@ -66,13 +66,40 @@ void SettingsLogic::setSettingValue(const QString &key, const QVariant &value)
     mSetting->setValue(key, value);
 }
 
-void SettingsLogic::writeSetting(const QVariantMap &dataMap)
+void SettingsLogic::writeSetting(const QVariantMap &dataMap, QString &errorInfo)
 {
     if (FuncType::AddTrader == dataMap.value(DefineFields::funcType).toString()){
+        QString cliendId = dataMap.value(DefineFields::UserId).toString();
+        QStringList cliendIdList = mSetting->childGroups();
+        if (cliendIdList.contains(cliendId)){
+            errorInfo = "此交易员账号已经添加，不能重复";
+            return;
+        }
         mSetting->beginGroup(dataMap.value(DefineFields::UserId).toString());
         mSetting->setValue(DefineFields::UserId,dataMap.value(DefineFields::UserId).toString());
         mSetting->setValue(DefineFields::PassWord, dataMap.value(DefineFields::PassWord).toString());
         mSetting->setValue(DefineFields::Mac, dataMap.value(DefineFields::Mac).toString());
+        mSetting->endGroup();
+    }
+    if (FuncType::AddFundAccount == dataMap.value(DefineFields::funcType).toString()){
+        QString traderId = dataMap.value(DefineFields::UserId).toString();
+        QString fundAccount = dataMap.value(DefineFields::FundAccount).toString();
+
+        QStringList cliendIdList = mSetting->childGroups();
+        if (!cliendIdList.contains(traderId)){
+            errorInfo = "此交易员账号不存在，请联系管理员添加";
+            return;
+        }
+        mSetting->beginGroup(dataMap.value(DefineFields::UserId).toString());
+        QStringList fundList = mSetting->value(DefineFields::FundListStr).toStringList();
+        if (fundList.contains(fundAccount)){
+            errorInfo = "此资金账户已经存在，不能重复添加";
+            mSetting->endGroup();
+            return;
+        }
+        fundList.append(fundAccount);
+        mSetting->setValue(DefineFields::FundListStr,fundList);
+
         mSetting->endGroup();
     }
 }
@@ -90,7 +117,7 @@ void SettingsLogic::initSetting()
 {
     QString fileName = QCoreApplication::applicationDirPath() + "/work/" + "config.ini";
     mSetting = new QSettings(fileName,QSettings::IniFormat, this);
-    mSetting->clear();
+//    mSetting->clear();
     // 设置管理员账号，密码
     mSetting->setValue(DefineFields::Admin_Account, "Admin");
     mSetting->setValue(DefineFields::Admin_Password, "123456");
