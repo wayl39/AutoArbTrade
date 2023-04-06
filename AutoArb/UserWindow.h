@@ -31,6 +31,8 @@ private:
     void createWidget();
     void createLayout();
     void createConncet();
+
+    void getFileLog();
 private:
     Ui::UserWindow *ui;
     QString m_clientId;

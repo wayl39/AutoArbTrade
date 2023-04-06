@@ -30,6 +30,7 @@ void MainWindow::slotLogSuccess(const QString &cliendId)
     } else {
         close();
         UserWindow *userWidget = new UserWindow;
+        userWidget->setClientId(cliendId);
         userWidget->show();
 
     }
@@ -37,7 +38,12 @@ void MainWindow::slotLogSuccess(const QString &cliendId)
 
 void MainWindow::createWidget()
 {
-    m_logWidget = new LoginWidget(this);
+    setWindowTitle("AutoArb交易系统");
+//    m_logWidget = new LoginWidget(this);
+    close();
+    UserWindow *userWidget = new UserWindow;
+//    userWidget->setClientId(cliendId);
+    userWidget->show();
 }
 
 void MainWindow::createLayout()

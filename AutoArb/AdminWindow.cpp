@@ -5,7 +5,7 @@
 #include <QVBoxLayout>
 #include "ADialog.h"
 #include "AddTraderWidget.h"
-//#include "AddAccountWidget.h"
+#include "AddAccountWidget.h"
 #include "SettingsLogic.h"
 #include <QSettings>
 #include "AdminUserItem.h"
@@ -55,10 +55,10 @@ void AdminWindow::slotDeleteTraderClicked()
 void AdminWindow::slotAddFundClicked()
 {
     ADialog dialog("添加资金账户");
-//    AddAccountWidget widget;
-//    dialog.addWidget(&widget);
-//    connect(&dialog, &ADialog::signalBtnOkClicked, &widget, &AddAccountWidget::slotOkBtnClicked);
-//    connect(&widget, &AddAccountWidget::signalBtnOkClicked, &dialog, &ADialog::accept);
+    AddAccountWidget widget;
+    dialog.addWidget(&widget);
+    connect(&dialog, &ADialog::signalBtnOkClicked, &widget, &AddAccountWidget::slotOkBtnClicked);
+    connect(&widget, &AddAccountWidget::signalBtnOkClicked, &dialog, &ADialog::accept);
 
     dialog.exec();
 }

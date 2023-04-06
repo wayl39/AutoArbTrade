@@ -23,6 +23,7 @@ LoginWidget::LoginWidget(QWidget *parent)
       ui(new Ui::LoginWidget)
 {
     ui->setupUi(this);
+    ui->btnRegister->hide();
 }
 
 /**

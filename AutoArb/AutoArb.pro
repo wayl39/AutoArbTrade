@@ -26,7 +26,7 @@ CONFIG += c++11
 
 SOURCES += \
         ADialog.cpp \
-#        AddAccountWidget.cpp \
+        AddAccountWidget.cpp \
     AddRiskWidget.cpp \
     AddStragetyWidget.cpp \
         AddTraderWidget.cpp \
@@ -46,7 +46,7 @@ SOURCES += \
 
 HEADERS += \
         ADialog.h \
-#        AddAccountWidget.h \
+        AddAccountWidget.h \
     AddRiskWidget.h \
     AddStragetyWidget.h \
         AddTraderWidget.h \
@@ -65,7 +65,7 @@ HEADERS += \
 
 FORMS += \
         ADialog.ui \
-#        AddAccountWidget.ui \
+        AddAccountWidget.ui \
     AddRiskWidget.ui \
     AddStragetyWidget.ui \
         AddTraderWidget.ui \
