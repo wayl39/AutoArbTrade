@@ -40,7 +40,7 @@
     </item>
     <item>
      <widget class="QWidget" name="widget_log" native="true">
-      <layout class="QHBoxLayout" name="horizontalLayout">
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0">
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
@@ -77,6 +77,12 @@ p, li { white-space: pre-wrap; }
           </item>
           <item>
            <widget class="QLabel" name="label_file">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
              <string/>
             </property>

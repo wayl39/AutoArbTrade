@@ -2,7 +2,7 @@
 #include "ui_UserWindow.h"
 #include "SettingsLogic.h"
 #include "DefineFields.h"
-#include <QFile>
+//#include <QFile>
 #include <QDir>
 #include <QFileDialog>
 #include <QCoreApplication>
@@ -20,6 +20,10 @@ UserWindow::UserWindow(QWidget *parent) :
 
 UserWindow::~UserWindow()
 {
+    if (m_logFile){
+        if (m_logFile->isOpen())
+            m_logFile->close();
+    }
     delete ui;
 }
 
@@ -27,8 +31,12 @@ void UserWindow::createWidget()
 {
     setWindowTitle("交易管理系统(交易员)");
 //    QStringList cliendIdList
-    ui->menu_strategyManager->hide();
+
     ui->widget_strategy->hide();
+    ui->menubar->removeAction(ui->action_addStragety);
+    ui->menubar->removeAction(ui->action_deleteStragety);
+    ui->menu_strategyManager->clear();
+    ui->menu_strategyManager->setTitle("");
 }
 
 void UserWindow::createLayout()
@@ -56,22 +64,48 @@ void UserWindow::getFileLog()
     QDir dir(path);
     QString filePath = dir.fromNativeSeparators(path);
     dir.setFilter(QDir::Files);
-    dir.setSorting(QDir::Name);
+    dir.setSorting(QDir::Time);
     dir.setNameFilters(QStringList("*.log"));
     QStringList fileList = dir.entryList();
     QStringList dirFileList;
     foreach(auto fileName, fileList){
         dirFileList.append(QDir::fromNativeSeparators(filePath + "/" + fileName));
     }
-    ui->label_file->setText(dirFileList.join(";\n"));
+//    ui->label_file->setText(dirFileList.join(";\n"));
+    if (!dirFileList.isEmpty()){
+        ui->label_file->setText(dirFileList.first());
+        QString m_filePath = dirFileList.first();
+        m_logFile = new QFile(m_filePath);
+        m_fileSize = m_logFile->size();
+        if (!m_logFile->open(QIODevice::ReadOnly| QIODevice::Text))
+            return;
 
-    QFile outFile(dirFileList.first());
-    outFile.open(QIODevice::ReadOnly);
-    QTextStream ts(&outFile);
+        QTextStream ts(m_logFile);
+        ui->textBrowser_log->setText(ts.readAll());
+        m_logFile->close();
+//        m_timer = new QTimer(this);
+//        m_timer->start(30 * 1000);
+//        connect(m_timer, &QTimer::timeout, this, &UserWindow::slotTimeOut);
+    }
+    if (m_logFile){
+        connect(m_logFile, &QFile::readyRead, this, [=]{
+            m_logFile->open(QIODevice::ReadWrite);
+            QTextStream ts(m_logFile);
+            ui->textBrowser_log->append(ts.readAll());
+            m_logFile->close();
+        });
+    }
 
-    ui->textBrowser_log->setText(ts.readAll());
-    outFile.close();
+}
 
+QString UserWindow::getFilePath() const
+{
+    return m_filePath;
+}
+
+void UserWindow::setFilePath(const QString &filePath)
+{
+    m_filePath = filePath;
 }
 
 QString UserWindow::clientId() const
@@ -101,5 +135,21 @@ void UserWindow::slotAddRiskClicked()
 
 void UserWindow::slotDeleteRiskClicked()
 {
+
+}
+
+void UserWindow::slotTimeOut()
+{
+    qDebug() << __FUNCTION__ ;
+    if (m_logFile->exists() && !m_logFile->isOpen()){
+        if (!m_logFile->open(QIODevice::ReadOnly| QIODevice::Text))
+            return;
+    }
+    if (m_logFile->size() != m_fileSize){
+        QTextStream ts(m_logFile);
+        ui->textBrowser_log->setText(ts.readAll());
+        if (m_logFile->isOpen())
+            m_logFile->close();
+    }
 
 }

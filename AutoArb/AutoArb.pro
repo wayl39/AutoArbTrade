@@ -34,6 +34,7 @@ SOURCES += \
     AdminUserItem.cpp \
         AdminWindow.cpp \
         DefineFields.cpp \
+    FileSystemWatcher.cpp \
         SettingsLogic.cpp \
         Trader.cpp \
         User.cpp \
@@ -54,6 +55,7 @@ HEADERS += \
     AdminUserItem.h \
         AdminWindow.h \
         DefineFields.h \
+    FileSystemWatcher.h \
         MainWindow.h \
         SettingsLogic.h \
         Trader.h \
