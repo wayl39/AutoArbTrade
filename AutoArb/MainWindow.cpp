@@ -39,18 +39,15 @@ void MainWindow::slotLogSuccess(const QString &cliendId)
 void MainWindow::createWidget()
 {
     setWindowTitle("AutoArb交易系统");
-//    m_logWidget = new LoginWidget(this);
-    close();
-    UserWindow *userWidget = new UserWindow;
-//    userWidget->setClientId(cliendId);
-    userWidget->show();
+    m_logWidget = new LoginWidget(this);
+    QHBoxLayout *layout = new QHBoxLayout;
+    layout->addWidget(m_logWidget);
+    ui->centralWidget->setLayout(layout);
 }
 
 void MainWindow::createLayout()
 {
-    QHBoxLayout *layout = new QHBoxLayout;
-    layout->addWidget(m_logWidget);
-    ui->centralWidget->setLayout(layout);
+
 }
 
 void MainWindow::createConnect()

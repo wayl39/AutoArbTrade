@@ -18,7 +18,8 @@ AdminUserItem::~AdminUserItem()
 
 void AdminUserItem::setItemName(const QString &text)
 {
-    ui->label_userId->setText(text);
+//    ui->label_userId->setText(text);
+    m_clientId = text;
 }
 
 void AdminUserItem::createWidget()
@@ -33,5 +34,8 @@ void AdminUserItem::createLayout()
 
 void AdminUserItem::createConnect()
 {
-
+    connect(ui->pb_delete, &QPushButton::clicked, this, &AdminUserItem::signalBtnDeleteClicked);
+    connect(ui->pb_modification, &QPushButton::clicked, this, [=]{
+        emit signalBtnModifiClicked(m_clientId);
+    });
 }

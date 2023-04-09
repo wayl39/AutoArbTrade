@@ -17,6 +17,10 @@ public:
 
 public slots:
     void slotAddTraderSuccess(const QString& cliendId);
+
+    void slotDeleteTraderSuccess(const QString& cliendId);
+
+    void slotBtnModifiClicked(const QString& clientId);
 private slots:
     void slotAddTraderClicked();
     void slotDeleteTraderClicked();

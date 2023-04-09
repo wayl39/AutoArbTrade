@@ -17,6 +17,11 @@ public:
 
     void setItemName(const QString& text);
 
+signals:
+    void signalBtnDeleteClicked();
+
+    void signalBtnModifiClicked(const QString& cliendId);
+
 private:
     void createWidget();
     void createLayout();
@@ -24,6 +29,8 @@ private:
 
 private:
     Ui::AdminUserItem *ui;
+
+    QString m_clientId;
 };
 
 #endif // ADMINUSERITEM_H

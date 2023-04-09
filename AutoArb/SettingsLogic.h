@@ -25,7 +25,9 @@ public:
 
     void writeSetting(const QVariantMap& dataMap, QString& errorInfo);
 
-    void deleteSetting(const QVariantMap& dataMap);
+    void deleteSetting(const QVariantMap& dataMap, QString& errorInfo);
+
+    void modifiSetting(const QVariantMap& dataMap, QString& errorInfo);
 
     QSettings *getSetting() const;
     void setSetting(QSettings *setting);

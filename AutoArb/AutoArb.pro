@@ -34,6 +34,8 @@ SOURCES += \
     AdminUserItem.cpp \
         AdminWindow.cpp \
         DefineFields.cpp \
+    DeleteAccountWidget.cpp \
+    DeleteTraderWidget.cpp \
     FileSystemWatcher.cpp \
         SettingsLogic.cpp \
         Trader.cpp \
@@ -55,6 +57,8 @@ HEADERS += \
     AdminUserItem.h \
         AdminWindow.h \
         DefineFields.h \
+    DeleteAccountWidget.h \
+    DeleteTraderWidget.h \
     FileSystemWatcher.h \
         MainWindow.h \
         SettingsLogic.h \
@@ -74,6 +78,8 @@ FORMS += \
         Admin.ui \
     AdminUserItem.ui \
         AdminWindow.ui \
+    DeleteAccountWidget.ui \
+    DeleteTraderWidget.ui \
         MainWindow.ui \
         Trader.ui \
     UserStrategyItem.ui \

@@ -106,11 +106,38 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap, QString &errorInfo)
     }
 }
 
-void SettingsLogic::deleteSetting(const QVariantMap &dataMap)
+void SettingsLogic::deleteSetting(const QVariantMap &dataMap, QString &errorInfo)
 {
     if (FuncType::DeleteTrader == dataMap.value(DefineFields::funcType).toString()){
+        QStringList cliendIdList = mSetting->childGroups();
+        QString traderId = dataMap.value(DefineFields::UserId).toString();
+        if (!cliendIdList.contains(traderId)){
+            errorInfo = "此交易员账号不存在，无法进行删除";
+            return;
+        }
         mSetting->beginGroup(dataMap.value(DefineFields::UserId).toString());
         mSetting->remove("");
+        mSetting->endGroup();
+    }
+    if (FuncType::DeleteFundAccount == dataMap.value(DefineFields::funcType).toString()){
+        QString traderId = dataMap.value(DefineFields::UserId).toString();
+        QString fundAccount = dataMap.value(DefineFields::FundAccount).toString();
+
+        QStringList cliendIdList = mSetting->childGroups();
+        if (!cliendIdList.contains(traderId)){
+            errorInfo = "此交易员账号不存在，请重新填写";
+            return;
+        }
+        mSetting->beginGroup(dataMap.value(DefineFields::UserId).toString());
+        QStringList fundList = mSetting->value(DefineFields::FundListStr).toStringList();
+        if (!fundList.contains(fundAccount)){
+            errorInfo = "此资金账户不存在，无法删除";
+            mSetting->endGroup();
+            return;
+        }
+        fundList.removeOne(fundAccount);
+        mSetting->setValue(DefineFields::FundListStr,fundList);
+
         mSetting->endGroup();
     }
 }
