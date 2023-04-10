@@ -83,7 +83,7 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap, QString &errorInfo)
         mSetting->setValue(DefineFields::Mac, dataMap.value(DefineFields::Mac).toString());
         mSetting->endGroup();
     }
-    if (FuncType::AddFundAccount == dataMap.value(DefineFields::funcType).toString()){
+    else if (FuncType::AddFundAccount == dataMap.value(DefineFields::funcType).toString()){
         QString traderId = dataMap.value(DefineFields::UserId).toString();
         QString fundAccount = dataMap.value(DefineFields::FundAccount).toString();
 
@@ -101,6 +101,30 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap, QString &errorInfo)
         }
         fundList.append(fundAccount);
         mSetting->setValue(DefineFields::FundListStr,fundList);
+
+        mSetting->endGroup();
+    }
+    else if (FuncType::AddFundAccount == dataMap.value(DefineFields::funcType).toString()){
+        QString traderId = dataMap.value(DefineFields::UserId).toString();
+
+        QStringList cliendIdList = mSetting->childGroups();
+        if (!cliendIdList.contains(traderId)){
+            errorInfo = "此交易员账号不存在，请联系管理员添加";
+            return;
+        }
+        mSetting->beginGroup(dataMap.value(DefineFields::UserId).toString());
+        QString password = mSetting->value(DefineFields::PassWord).toString();
+        QString mac = mSetting->value(DefineFields::Mac).toString();
+        QStringList fundList = mSetting->value(DefineFields::FundListStr).toStringList();
+        if (password != dataMap.value(DefineFields::PassWord).toString())
+            mSetting->setValue(DefineFields::PassWord, dataMap.value(DefineFields::PassWord).toString());
+        if (mac != dataMap.value(DefineFields::Mac).toString())
+            mSetting->setValue(DefineFields::Mac, dataMap.value(DefineFields::Mac).toString());
+//        fundList.sort();
+//        QStringList fundListTmp = dataMap.value(DefineFields::FundListStr).toStringList();
+//        fundListTmp.sort();
+        if (fundList != dataMap.value(DefineFields::FundListStr).toStringList())
+            mSetting->setValue(DefineFields::FundListStr,fundList);
 
         mSetting->endGroup();
     }

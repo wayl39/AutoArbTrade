@@ -14,3 +14,4 @@ const QString FuncType::AddTrader = "addTrader";
 const QString FuncType::DeleteTrader = "deleteTrader";
 const QString FuncType::AddFundAccount = "addFundAccount";
 const QString FuncType::DeleteFundAccount = "deleteFundAccount";
+const QString FuncType::ModifiTraderMsg = "modifiTraderMsg";

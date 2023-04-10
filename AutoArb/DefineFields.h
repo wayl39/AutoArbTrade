@@ -31,6 +31,7 @@ public:
     static const QString DeleteTrader; // = "deleteTrader";
     static const QString AddFundAccount; // = "addFundAccount";
     static const QString DeleteFundAccount; // = "deleteFundAccount";
+    static const QString ModifiTraderMsg; // = "modifiTraderMsg";
 };
 
 #endif // DEFINEFIELDS_H
