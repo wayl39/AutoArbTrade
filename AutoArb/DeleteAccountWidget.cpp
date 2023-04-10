@@ -52,7 +52,6 @@ void DeleteAccountWidget::createLayout()
 
 void DeleteAccountWidget::createConnect()
 {
-
 }
 
 void DeleteAccountWidget::checkUiData(QString &errorInfo)

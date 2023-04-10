@@ -10,7 +10,12 @@
 #include <QSettings>
 #include "AdminUserItem.h"
 #include "DeleteTraderWidget.h"
+#include "DeleteAccountWidget.h"
 #include <QDebug>
+#include "SettingsLogic.h"
+#include "DefineFields.h"
+#include <QMessageBox>
+#include "ModifiTraderWidget.h"
 
 AdminWindow::AdminWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -29,18 +34,14 @@ AdminWindow::~AdminWindow()
 
 void AdminWindow::slotAddTraderSuccess(const QString &cliendId)
 {
-    QListWidgetItem* item = new QListWidgetItem(cliendId, nullptr);
+    QListWidgetItem* item = new QListWidgetItem(cliendId);
     AdminUserItem *widget = new AdminUserItem;
 //    item->setText(cliendId);
     widget->setItemName(cliendId);
     item->setSizeHint(QSize(200, 40));
     ui->listWidget_trader->addItem(item);
     ui->listWidget_trader->setItemWidget(item, widget);
-    connect(widget, &AdminUserItem::signalBtnDeleteClicked, this, [=]{
-        QListWidgetItem *item = ui->listWidget_trader->currentItem();
-        ui->listWidget_trader->removeItemWidget(item);
-        delete item;
-    });
+    connect(widget, &AdminUserItem::signalBtnDeleteClicked, this, &AdminWindow::slotBtnDeleteClicked);
 
     connect(widget, &AdminUserItem::signalBtnModifiClicked, this, &AdminWindow::slotBtnModifiClicked);
 }
@@ -64,8 +65,42 @@ void AdminWindow::slotDeleteTraderSuccess(const QString &cliendId)
 
 void AdminWindow::slotBtnModifiClicked(const QString &clientId)
 {
-    QVariantMap msgMap = SettingsLogic::GetInstance()->getSettingValue(clientId).toMap();
-    qDebug() << __FUNCTION__ << msgMap;
+    QSettings *setting = SettingsLogic::GetInstance()->getSetting();
+    setting->beginGroup(clientId);
+    QStringList keys = setting->childKeys();
+    QVariantMap msgMap;
+    foreach(auto key, keys){
+        msgMap.insert(key, setting->value(key));
+    }
+
+    setting->endGroup();
+    qDebug() << __FUNCTION__ << msgMap << clientId;
+
+    ADialog dialog("修改交易员信息");
+    ModifiTraderWidget widget;
+    dialog.addWidget(&widget);
+    widget.initUiData(msgMap);
+    connect(&dialog, &ADialog::signalBtnOkClicked, &widget, &ModifiTraderWidget::slotOkBtnClicked);
+    connect(&widget, &ModifiTraderWidget::signalBtnOkClicked, &dialog, &ADialog::accept);
+
+    dialog.exec();
+}
+
+void AdminWindow::slotBtnDeleteClicked()
+{
+    QListWidgetItem *item = ui->listWidget_trader->currentItem();
+    QVariantMap dataMap;
+    dataMap.insert(DefineFields::funcType, FuncType::DeleteTrader);
+    dataMap.insert(DefineFields::UserId, item->text());
+    QString errorInfo;
+    SettingsLogic::GetInstance()->deleteSetting(dataMap, errorInfo);
+    if (!errorInfo.isEmpty())
+    {
+        QMessageBox::critical(this, "交易员账户删除", errorInfo);
+        return;
+    }
+    ui->listWidget_trader->removeItemWidget(item);
+    delete item;
 }
 
 void AdminWindow::slotAddTraderClicked()
@@ -106,7 +141,13 @@ void AdminWindow::slotAddFundClicked()
 
 void AdminWindow::slotDeleteFundClicked()
 {
+    ADialog dialog("删除资金账户");
+    DeleteAccountWidget widget;
+    dialog.addWidget(&widget);
+    connect(&dialog, &ADialog::signalBtnOkClicked, &widget, &DeleteAccountWidget::slotOkBtnClicked);
+    connect(&widget, &DeleteAccountWidget::signalBtnOkClicked, &dialog, &ADialog::accept);
 
+    dialog.exec();
 }
 
 void AdminWindow::slotAddRiskClicked()
@@ -143,16 +184,20 @@ void AdminWindow::createWidget()
 //    ui->menubar->addMenu(menu_fundManager);
 //    ui->menubar->addMenu(menu_riskManager);
     ui->stackedWidget->setCurrentWidget(ui->page_user);
+    ui->menu_riskManager->clear();
+    ui->menu_riskManager->setTitle("");
 
     QStringList cliendIdList = SettingsLogic::GetInstance()->getSetting()->childGroups();
     foreach(auto cliendId, cliendIdList){
-        QListWidgetItem* item = new QListWidgetItem;
+        QListWidgetItem* item = new QListWidgetItem(cliendId);
         AdminUserItem *widget = new AdminUserItem;
         widget->setItemName(cliendId);
         item->setSizeHint(QSize(200, 40));
         ui->listWidget_trader->addItem(item);
         ui->listWidget_trader->setItemWidget(item, widget);
+        connect(widget, &AdminUserItem::signalBtnDeleteClicked, this, &AdminWindow::slotBtnDeleteClicked);
 
+        connect(widget, &AdminUserItem::signalBtnModifiClicked, this, &AdminWindow::slotBtnModifiClicked);
     }
 }
 

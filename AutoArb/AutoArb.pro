@@ -37,6 +37,7 @@ SOURCES += \
     DeleteAccountWidget.cpp \
     DeleteTraderWidget.cpp \
     FileSystemWatcher.cpp \
+    ModifiTraderWidget.cpp \
         SettingsLogic.cpp \
         Trader.cpp \
         User.cpp \
@@ -61,6 +62,7 @@ HEADERS += \
     DeleteTraderWidget.h \
     FileSystemWatcher.h \
         MainWindow.h \
+    ModifiTraderWidget.h \
         SettingsLogic.h \
         Trader.h \
         User.h \
@@ -81,6 +83,7 @@ FORMS += \
     DeleteAccountWidget.ui \
     DeleteTraderWidget.ui \
         MainWindow.ui \
+    ModifiTraderWidget.ui \
         Trader.ui \
     UserStrategyItem.ui \
     UserWindow.ui \

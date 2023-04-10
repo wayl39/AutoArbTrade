@@ -83,9 +83,9 @@ void UserWindow::getFileLog()
         QTextStream ts(m_logFile);
         ui->textBrowser_log->setText(ts.readAll());
         m_logFile->close();
-//        m_timer = new QTimer(this);
-//        m_timer->start(30 * 1000);
-//        connect(m_timer, &QTimer::timeout, this, &UserWindow::slotTimeOut);
+        m_timer = new QTimer(this);
+        m_timer->start(10 * 1000);
+        connect(m_timer, &QTimer::timeout, this, &UserWindow::slotTimeOut);
     }
     if (m_logFile){
         connect(m_logFile, &QFile::readyRead, this, [=]{

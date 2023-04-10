@@ -21,6 +21,8 @@ public slots:
     void slotDeleteTraderSuccess(const QString& cliendId);
 
     void slotBtnModifiClicked(const QString& clientId);
+
+    void slotBtnDeleteClicked();
 private slots:
     void slotAddTraderClicked();
     void slotDeleteTraderClicked();
