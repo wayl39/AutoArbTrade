@@ -10,14 +10,6 @@
 /**
  * @brief 构造函数
 */
-LoginWidget::LoginWidget(QTcpSocket *socket, QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::LoginWidget),
-    socket(socket)
-{
-    ui->setupUi(this);
-}
-
 LoginWidget::LoginWidget(QWidget *parent)
     : QWidget (parent),
       ui(new Ui::LoginWidget)

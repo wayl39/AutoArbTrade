@@ -2,7 +2,7 @@
 #include <QApplication>
 #include "SettingsLogic.h"
 
-#define Test 1
+#define Test 0
 
 #ifdef Test
 #include "AdminWindow.h"

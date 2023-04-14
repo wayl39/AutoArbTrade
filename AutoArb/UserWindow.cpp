@@ -7,6 +7,7 @@
 #include <QFileDialog>
 #include <QCoreApplication>
 #include <QDebug>
+#include "FileSystemWatcher.h"
 
 UserWindow::UserWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -83,9 +84,11 @@ void UserWindow::getFileLog()
         QTextStream ts(m_logFile);
         ui->textBrowser_log->setText(ts.readAll());
         m_logFile->close();
-        m_timer = new QTimer(this);
-        m_timer->start(10 * 1000);
-        connect(m_timer, &QTimer::timeout, this, &UserWindow::slotTimeOut);
+
+        FileSystemWatcher::addWatchPath(m_filePath);
+//        m_timer = new QTimer(this);
+//        m_timer->start(10 * 1000);
+//        connect(m_timer, &QTimer::timeout, this, &UserWindow::slotTimeOut);
     }
     if (m_logFile){
         connect(m_logFile, &QFile::readyRead, this, [=]{

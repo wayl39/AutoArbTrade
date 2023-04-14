@@ -74,7 +74,7 @@ void AdminWindow::slotBtnModifiClicked(const QString &clientId)
     }
 
     setting->endGroup();
-    qDebug() << __FUNCTION__ << msgMap << clientId;
+//    qDebug() << __FUNCTION__ << msgMap << clientId;
 
     ADialog dialog("修改交易员信息");
     ModifiTraderWidget widget;

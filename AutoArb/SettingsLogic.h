@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QVariantMap>
+#include <QTcpSocket>
 
 #define BISADMIN 1
 
@@ -39,6 +40,8 @@ private:
     SettingsLogic();
 
     QSettings *mSetting{Q_NULLPTR};
+
+    QTcpSocket* m_socket{Q_NULLPTR};
 
 };
 

@@ -14,7 +14,7 @@ void FileSystemWatcher::addWatchPath(QString path)
         m_pInstance->m_pSystemWatcher = new QFileSystemWatcher();
         // 连接 QFileSysteWatcher的directoryChange和fileChanged信号到相应的槽
         connect(m_pInstance->m_pSystemWatcher, &QFileSystemWatcher::directoryChanged, m_pInstance, &FileSystemWatcher::directoryUpdated);
-        connect(m_pInstance->m_pSystemWatcher, &QFileSystemWatcher::fileChanged, m_pInstance, &FileSystemWatcher::directoryUpdated);
+        connect(m_pInstance->m_pSystemWatcher, &QFileSystemWatcher::fileChanged, m_pInstance, &FileSystemWatcher::fileUpdated);
     }
     // 添加监控路径
     m_pInstance->m_pSystemWatcher->addPath(path);

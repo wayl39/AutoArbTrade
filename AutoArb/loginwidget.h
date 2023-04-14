@@ -2,7 +2,6 @@
 #define LOGINWIDGET_H
 
 #include <QWidget>
-#include <QTcpSocket>
 
 namespace Ui {
 class LoginWidget;
@@ -17,7 +16,6 @@ class LoginWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit LoginWidget(QTcpSocket* socket, QWidget *parent = 0);
     explicit LoginWidget(QWidget *parent = nullptr);
     ~LoginWidget();
 
@@ -31,8 +29,6 @@ private slots:
 
 private:
     Ui::LoginWidget *ui;
-
-    QTcpSocket* socket;
 };
 
 #endif // LOGINWIDGET_H
