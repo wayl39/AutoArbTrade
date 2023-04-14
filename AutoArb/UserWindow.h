@@ -3,7 +3,9 @@
 
 #include <QMainWindow>
 #include <QFile>
+#include <QFileInfo>
 #include <QTimer>
+#include <QDateTime>
 
 namespace Ui {
 class UserWindow;
@@ -46,6 +48,8 @@ private:
     QFile *m_logFile{Q_NULLPTR};
     QTimer *m_timer{Q_NULLPTR};
     qlonglong m_fileSize;
+    QFileInfo m_fileInfo;
+    QDateTime m_passTime;
 
 };
 

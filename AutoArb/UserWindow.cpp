@@ -2,12 +2,13 @@
 #include "ui_UserWindow.h"
 #include "SettingsLogic.h"
 #include "DefineFields.h"
-//#include <QFile>
+#include <QFileInfo>
 #include <QDir>
 #include <QFileDialog>
 #include <QCoreApplication>
 #include <QDebug>
 #include "FileSystemWatcher.h"
+#include <QDateTime>
 
 UserWindow::UserWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -75,9 +76,11 @@ void UserWindow::getFileLog()
 //    ui->label_file->setText(dirFileList.join(";\n"));
     if (!dirFileList.isEmpty()){
         ui->label_file->setText(dirFileList.first());
-        QString m_filePath = dirFileList.first();
-        m_logFile = new QFile(m_filePath);
-        m_fileSize = m_logFile->size();
+        m_filePath = dirFileList.first();
+        m_logFile = new QFile(m_filePath, this);
+        m_fileInfo = QFileInfo(*m_logFile);
+        m_passTime = m_fileInfo.lastModified();
+        m_fileSize = m_fileInfo.size();
         if (!m_logFile->open(QIODevice::ReadOnly| QIODevice::Text))
             return;
 
@@ -85,10 +88,11 @@ void UserWindow::getFileLog()
         ui->textBrowser_log->setText(ts.readAll());
         m_logFile->close();
 
-        FileSystemWatcher::addWatchPath(m_filePath);
-//        m_timer = new QTimer(this);
-//        m_timer->start(10 * 1000);
-//        connect(m_timer, &QTimer::timeout, this, &UserWindow::slotTimeOut);
+//        FileSystemWatcher::pInstance()->addWatchPath(m_filePath);
+//        connect(FileSystemWatcher::pInstance(), &FileSystemWatcher::signalFileChange, this, &UserWindow::slotTimeOut);
+        m_timer = new QTimer(this);
+        m_timer->start(5 * 1000);
+        connect(m_timer, &QTimer::timeout, this, &UserWindow::slotTimeOut);
     }
     if (m_logFile){
         connect(m_logFile, &QFile::readyRead, this, [=]{
@@ -143,16 +147,34 @@ void UserWindow::slotDeleteRiskClicked()
 
 void UserWindow::slotTimeOut()
 {
-    qDebug() << __FUNCTION__ ;
-    if (m_logFile->exists() && !m_logFile->isOpen()){
-        if (!m_logFile->open(QIODevice::ReadOnly| QIODevice::Text))
-            return;
-    }
-    if (m_logFile->size() != m_fileSize){
+//    qDebug() << __FUNCTION__ << m_fileInfo.size() << m_fileSize;
+//    qDebug() << __FUNCTION__ << m_logFile->exists() << m_logFile->isOpen() << m_logFile->open(QIODevice::ReadOnly| QIODevice::Text);
+//    ui->textBrowser_log->clear();
+//    QFile file(m_filePath);
+//    file.open(QIODevice::ReadOnly| QIODevice::Text);
+    QFileInfo fileInfo(*m_logFile);
+    if (fileInfo.size() != m_fileSize){
+        m_fileSize = fileInfo.size();
+        if (m_logFile->exists() && !m_logFile->isOpen()){
+            if (!m_logFile->open(QIODevice::ReadOnly| QIODevice::Text))
+                return;
+        }
+//        qDebug() << __FUNCTION__ << 11;
+//        qint64 cur = m_logFile->pos();
+//        if (cur < m_fileInfo.size())
+//            m_logFile->seek(cur);
+
+//        QTextStream ts(m_logFile);
+//        while(!ts.atEnd()){
+//            ui->textBrowser_log->append(ts.readLine());
+//        }
+
         QTextStream ts(m_logFile);
         ui->textBrowser_log->setText(ts.readAll());
+
         if (m_logFile->isOpen())
             m_logFile->close();
     }
+
 
 }

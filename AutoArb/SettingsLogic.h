@@ -4,8 +4,10 @@
 #include <QObject>
 #include <QVariantMap>
 #include <QTcpSocket>
+//#include <QVariant>
 
-#define BISADMIN 1
+
+//Q_DECLARE_METATYPE(QVariant)
 
 class QSettings;
 
@@ -33,9 +35,17 @@ public:
     QSettings *getSetting() const;
     void setSetting(QSettings *setting);
 
+signals:
+    void signalStartConnect(unsigned short port, QString ip);
+
+    void sendFile(QString path);
+
 private:
 
     void initSetting();
+
+    bool CheckSettingValue(const QString& key, const QVariant &defaultValue);
+
 private:
     SettingsLogic();
 

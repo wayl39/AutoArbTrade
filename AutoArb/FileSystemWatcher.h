@@ -9,9 +9,12 @@ class FileSystemWatcher : public QObject
 {
     Q_OBJECT
 public:
-    static void addWatchPath(QString path);
+    void addWatchPath(QString path);
+
+    static FileSystemWatcher *pInstance();
 
 signals:
+    void signalFileChange(const QString& path);
 
 public slots:
     void directoryUpdated(const QString &path); // 目录更新时调用

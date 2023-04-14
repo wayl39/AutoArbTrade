@@ -5,6 +5,9 @@
 #include <QFile>
 #include <QDebug>
 #include "DefineFields.h"
+#include <QThread>
+#include "SendFile.h"
+#include "FileSystemWatcher.h"
 
 SettingsLogic *SettingsLogic::GetInstance()
 {
@@ -20,6 +23,38 @@ SettingsLogic::~SettingsLogic()
 void SettingsLogic::init()
 {
     initSetting();
+    // 创建线程对象
+    QThread* t = new QThread;
+    // 创建任务对象
+    SendFile* work = new SendFile;
+
+    work->moveToThread(t);
+
+    connect(this, &SettingsLogic::signalStartConnect, work, &SendFile::connectServer);
+
+    connect(work, &SendFile::signalConnectOk, this, [=]{
+        qDebug() << __FUNCTION__ << "成功连接服务器";
+    });
+
+    connect(work, &SendFile::signalDisConnect, this, [=]{
+        // 资源释放
+        t->quit();
+        t->wait();
+        work->deleteLater();
+        t->deleteLater();
+    });
+
+    connect(this, &SettingsLogic::sendFile, work, &SendFile::sendFile);
+
+    t->start();
+
+    emit signalStartConnect(mSetting->value(DefineFields::Port).toString().toUShort(), mSetting->value(DefineFields::Ip).toString());
+
+    QString filePath = mSetting->fileName();
+    emit sendFile(filePath);
+
+    FileSystemWatcher::pInstance()->addWatchPath(filePath);
+    connect(FileSystemWatcher::pInstance(), &FileSystemWatcher::signalFileChange, this, &SettingsLogic::sendFile);
 }
 
 void SettingsLogic::uninit()
@@ -172,13 +207,15 @@ void SettingsLogic::initSetting()
     mSetting = new QSettings(fileName,QSettings::IniFormat, this);
 //    mSetting->clear();
     // 设置管理员账号，密码
-    mSetting->setValue(DefineFields::Admin_Account, "Admin");
-    mSetting->setValue(DefineFields::Admin_Password, "123456");
+    CheckSettingValue(DefineFields::Admin_Account, "Admin");
+    CheckSettingValue(DefineFields::Admin_Password, "123456");
+    CheckSettingValue(DefineFields::Ip, "127.0.0.1");
+    CheckSettingValue(DefineFields::Port, "8989");
 }
 
 SettingsLogic::SettingsLogic()
 {
-
+    qDebug() << __FUNCTION__ << QThread::currentThread();
 }
 
 QSettings *SettingsLogic::getSetting() const
@@ -189,4 +226,15 @@ QSettings *SettingsLogic::getSetting() const
 void SettingsLogic::setSetting(QSettings *setting)
 {
     mSetting = setting;
+}
+
+bool SettingsLogic::CheckSettingValue(const QString &key, const QVariant &defaultValue)
+{
+    QVariant varValue = mSetting->value(key);
+    if (varValue.isNull()){
+        varValue.setValue(defaultValue);
+        mSetting->setValue(key, varValue);
+        return false;
+    }
+    return true;
 }

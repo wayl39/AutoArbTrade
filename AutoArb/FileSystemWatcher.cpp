@@ -8,14 +8,6 @@ FileSystemWatcher* FileSystemWatcher::m_pInstance = Q_NULLPTR;
 void FileSystemWatcher::addWatchPath(QString path)
 {
     qDebug() << __FUNCTION__ << QString("add to watch %1").arg(path);
-
-    if (m_pInstance == Q_NULLPTR){
-        m_pInstance = new FileSystemWatcher();
-        m_pInstance->m_pSystemWatcher = new QFileSystemWatcher();
-        // 连接 QFileSysteWatcher的directoryChange和fileChanged信号到相应的槽
-        connect(m_pInstance->m_pSystemWatcher, &QFileSystemWatcher::directoryChanged, m_pInstance, &FileSystemWatcher::directoryUpdated);
-        connect(m_pInstance->m_pSystemWatcher, &QFileSystemWatcher::fileChanged, m_pInstance, &FileSystemWatcher::fileUpdated);
-    }
     // 添加监控路径
     m_pInstance->m_pSystemWatcher->addPath(path);
 
@@ -85,9 +77,22 @@ void FileSystemWatcher::fileUpdated(const QString &path)
     QString strName = file.fileName();
 
     qDebug() << __FUNCTION__ << QString("The file %1 at path %2 is updated").arg(strName).arg(strPath);
+    emit signalFileChange(path);
 }
 
 FileSystemWatcher::FileSystemWatcher(QObject *parent) : QObject(parent)
 {
 
+}
+
+FileSystemWatcher *FileSystemWatcher::pInstance()
+{
+    if (m_pInstance == Q_NULLPTR){
+        m_pInstance = new FileSystemWatcher();
+        m_pInstance->m_pSystemWatcher = new QFileSystemWatcher();
+        // 连接 QFileSysteWatcher的directoryChange和fileChanged信号到相应的槽
+        connect(m_pInstance->m_pSystemWatcher, &QFileSystemWatcher::directoryChanged, m_pInstance, &FileSystemWatcher::directoryUpdated);
+        connect(m_pInstance->m_pSystemWatcher, &QFileSystemWatcher::fileChanged, m_pInstance, &FileSystemWatcher::fileUpdated);
+    }
+    return m_pInstance;
 }
