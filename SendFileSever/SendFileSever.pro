@@ -8,7 +8,7 @@ QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = SendFileSever
+TARGET = AutoArbSever
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -16,13 +16,28 @@ TEMPLATE = app
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
+#DESTDIR =
+#win32-msvc*{
+#    DESTDIR += $$PWD/../build/msvc/run
+#}else{
+#    win32-g++{
+#        DESTDIR += $$PWD/../build/mingw32/run
+#    }else{
+#        if(contains(QMAKE_CXX,g++)){
+#            DESTDIR += $$PWD/../build/ubuntu/bin
+#        }
+#        if(contains(QMAKE_CXX,aarch64-linux-gnu-g++)){
+#            DESTDIR += $$PWD/../build/aarch64/bin
+#        }
+#    }
+#}
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-CONFIG += c++11 #console
+CONFIG += c++11 console
 
 SOURCES += \
         MyTcpSever.cpp \
