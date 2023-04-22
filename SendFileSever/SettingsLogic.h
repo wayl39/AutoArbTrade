@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QVariantMap>
 #include <QTcpSocket>
-//#include <QVariant>
+#include <QTcpServer>
 
 
 //Q_DECLARE_METATYPE(QVariant)
@@ -50,6 +50,8 @@ private:
     SettingsLogic();
 
     QSettings *m_settings{Q_NULLPTR};
+
+    QTcpServer* m_s{Q_NULLPTR};
 
     QTcpSocket* m_socket{Q_NULLPTR};
 

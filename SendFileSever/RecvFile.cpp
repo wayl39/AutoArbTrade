@@ -1,5 +1,6 @@
 #include "RecvFile.h"
 #include <QFile>
+#include "protocol.h"
 
 RecvFile::RecvFile(QTcpSocket *tcp, QObject *parent)
     : QThread(parent),
@@ -15,25 +16,8 @@ void RecvFile::run()
 
     // 接收数据
     connect(m_tcp, &QTcpSocket::readyRead, this, [=]{
-        static qint64 count = 0;
-        static qint64 total = 0;
-        if (count == 0){
-            m_tcp->read((char*)&total, 8);
-        }
-
-        // 读出剩余的数据
-        QByteArray all = m_tcp->readAll();
-        count += all.size();
-        file->write(all);
-
-        // 判断数据是否接收完成
-        if (count == total){
-            m_tcp->close();
-            m_tcp->deleteLater();
-            file->close();
-            file->deleteLater();
-            emit over();
-        }
+        Protocol p;
+        m_tcp->read();
     });
 
     // 进入事件循环

@@ -8,11 +8,11 @@
 #include <QThread>
 #include "SendFile.h"
 #include "FileSystemWatcher.h"
-#include "protocol.h"
-#include <QHostAddress>
+#include "RecvFile.h"
 
 SettingsLogic *SettingsLogic::GetInstance()
 {
+    qDebug() << "服务器主线程：" << QThread::currentThread();
     static SettingsLogic instance;
     return &instance;
 }
@@ -50,9 +50,9 @@ void SettingsLogic::init()
 
 //    t->start();
 
-//    emit signalStartConnect(mSetting->value(DefineFields::Port).toString().toUShort(), mSetting->value(DefineFields::Ip).toString());
+//    emit signalStartConnect(m_settings->value(DefineFields::Port).toString().toUShort(), m_settings->value(DefineFields::Ip).toString());
 
-//    QString filePath = mSetting->fileName();
+//    QString filePath = m_settings->fileName();
 //    emit sendFile(filePath);
 
 //    FileSystemWatcher::pInstance()->addWatchPath(filePath);
@@ -66,37 +66,33 @@ void SettingsLogic::uninit()
 
 void SettingsLogic::logProcFunc(const QVariantMap &dataMap, QString &errorInfo)
 {
-    Protocol p(Protocol::login);
-    p.setData(dataMap);
-    m_socket->write(p.pack());
-
-//    QString username = dataMap.value(DefineFields::UserId).toString();
-//    QString password = dataMap.value(DefineFields::PassWord).toString();
-//    QString macAddress = dataMap.value(DefineFields::Mac).toString();
-//    if (getSettingValue(DefineFields::Admin_Account).toString() == username
-//            && SettingsLogic::GetInstance()->getSettingValue(DefineFields::Admin_Password).toString() == password){
-//        return;
-//    }
-//    QStringList cliendIdList = m_settings->childGroups();
-////    qDebug() << __FUNCTION__ << cliendIdList;
-//    if (!cliendIdList.contains(username)){
-//        errorInfo = "没有此交易员账号，联系管理员添加";
-//        return;
-//    }
-//    m_settings->beginGroup(username);
-//    if (username != m_settings->value(DefineFields::UserId).toString()){
-//        errorInfo = "账户填写错误";
-//    }
-//    if (password != m_settings->value(DefineFields::PassWord).toString()){
-//        errorInfo = "密码填写错误";
-//    }
-//    if (macAddress != m_settings->value(DefineFields::Mac).toString()){
-//        errorInfo = "MAC填写错误";
-//    }
-//    m_settings->endGroup();
-//    if (!errorInfo.isEmpty()){
-//        return;
-//    }
+    QString username = dataMap.value(DefineFields::UserId).toString();
+    QString password = dataMap.value(DefineFields::PassWord).toString();
+    QString macAddress = dataMap.value(DefineFields::Mac).toString();
+    if (getSettingValue(DefineFields::Admin_Account).toString() == username
+            && SettingsLogic::GetInstance()->getSettingValue(DefineFields::Admin_Password).toString() == password){
+        return;
+    }
+    QStringList cliendIdList = m_settings->childGroups();
+//    qDebug() << __FUNCTION__ << cliendIdList;
+    if (!cliendIdList.contains(username)){
+        errorInfo = "没有此交易员账号，联系管理员添加";
+        return;
+    }
+    m_settings->beginGroup(username);
+    if (username != m_settings->value(DefineFields::UserId).toString()){
+        errorInfo = "账户填写错误";
+    }
+    if (password != m_settings->value(DefineFields::PassWord).toString()){
+        errorInfo = "密码填写错误";
+    }
+    if (macAddress != m_settings->value(DefineFields::Mac).toString()){
+        errorInfo = "MAC填写错误";
+    }
+    m_settings->endGroup();
+    if (!errorInfo.isEmpty()){
+        return;
+    }
 }
 
 QVariant SettingsLogic::getSettingValue(const QString &key, const QVariant &defaultValue)
@@ -211,17 +207,32 @@ void SettingsLogic::initSetting()
 {
     QString fileName = QCoreApplication::applicationDirPath() + "/work/" + "config.ini";
     m_settings = new QSettings(fileName,QSettings::IniFormat, this);
-    m_settings->clear();
+//    mSetting->clear();
     // 设置管理员账号，密码
-//    CheckSettingValue(DefineFields::Admin_Account, "Admin");
-//    CheckSettingValue(DefineFields::Admin_Password, "123456");
+    CheckSettingValue(DefineFields::Admin_Account, "Admin");
+    CheckSettingValue(DefineFields::Admin_Password, "123456");
     CheckSettingValue(DefineFields::Ip, "127.0.0.1");
     CheckSettingValue(DefineFields::Port, "8989");
 
+    m_s = new QTcpServer(this);
     unsigned short port = m_settings->value(DefineFields::Port).toString().toUShort();
-    QString ip = m_settings->value(DefineFields::Ip).toString();
-    m_socket = new QTcpSocket(this);
-    m_socket->connectToHost(QHostAddress(ip), port);
+    m_s->listen(QHostAddress::Any, port);
+
+    connect(m_s, &QTcpServer::newConnection, this, [=]{
+        QTcpSocket* tcp = m_s->nextPendingConnection();
+
+        // 创建子线程
+        RecvFile* subThread = new RecvFile(tcp);
+        subThread->start();
+
+        connect(subThread, &RecvFile::over, this, [=]{
+            subThread->exit();
+            subThread->wait();
+            subThread->deleteLater();
+//            QMessageBox::information(this, "文件接收", "文件接收完成");
+        });
+
+    });
 }
 
 SettingsLogic::SettingsLogic()

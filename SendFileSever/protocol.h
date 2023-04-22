@@ -23,10 +23,6 @@ public:
     inline QJsonValue operator[](const QString& key)const{return object[key];}
     inline QJsonValueRef operator[](const QString& key){return object[key];}
 
-    void setData(const QVariantMap& data);
-
-    QVariantMap getData();
-
     inline Type getType()const{return this->type;}
     inline void setType(Type type){this->type = type;}
 

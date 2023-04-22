@@ -40,15 +40,25 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11 console
 
 SOURCES += \
+        DefineFields.cpp \
+        FileSystemWatcher.cpp \
         MyTcpSever.cpp \
         RecvFile.cpp \
+        SendFile.cpp \
+        SettingsLogic.cpp \
         main.cpp \
-        MainWindow.cpp
+        MainWindow.cpp \
+        protocol.cpp
 
 HEADERS += \
+        DefineFields.h \
+        FileSystemWatcher.h \
         MainWindow.h \
         MyTcpSever.h \
-        RecvFile.h
+        RecvFile.h \
+        SendFile.h \
+        SettingsLogic.h \
+        protocol.h
 
 FORMS += \
         MainWindow.ui
