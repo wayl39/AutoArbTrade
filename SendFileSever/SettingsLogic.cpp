@@ -9,6 +9,7 @@
 #include "SendFile.h"
 #include "FileSystemWatcher.h"
 #include "RecvFile.h"
+#include "protocol.h"
 
 SettingsLogic *SettingsLogic::GetInstance()
 {
@@ -221,16 +222,22 @@ void SettingsLogic::initSetting()
     connect(m_s, &QTcpServer::newConnection, this, [=]{
         QTcpSocket* tcp = m_s->nextPendingConnection();
 
-        // 创建子线程
-        RecvFile* subThread = new RecvFile(tcp);
-        subThread->start();
+        /** @note 1. 管理套接字的读端 */
+        connect(tcp, &QTcpSocket::readyRead, this, &SettingsLogic::slotOnReadyRead);
 
-        connect(subThread, &RecvFile::over, this, [=]{
-            subThread->exit();
-            subThread->wait();
-            subThread->deleteLater();
-//            QMessageBox::information(this, "文件接收", "文件接收完成");
-        });
+        /** @note 2. 管理套接字的断开 */
+        connect(tcp, SIGNAL(disconnected()), this, SLOT(slotDisconnected()));
+
+//        // 创建子线程
+//        RecvFile* subThread = new RecvFile(tcp);
+//        subThread->start();
+
+//        connect(subThread, &RecvFile::over, this, [=]{
+//            subThread->exit();
+//            subThread->wait();
+//            subThread->deleteLater();
+////            QMessageBox::information(this, "文件接收", "文件接收完成");
+//        });
 
     });
 }
@@ -248,6 +255,29 @@ QSettings *SettingsLogic::getSetting() const
 void SettingsLogic::setSetting(QSettings *setting)
 {
     m_settings = setting;
+}
+
+void SettingsLogic::slotOnReadyRead()
+{
+    QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
+    QByteArray buffer = socket->readAll();
+
+    Protocol p;
+    int len = 0;
+    while((len = p.unpack(buffer)) > 0){
+        buffer = buffer.mid(len);
+
+        switch(p.getType()){
+        case Protocol::none:
+            break;
+        case Protocol::login:
+            break;
+        case Protocol::createRoom:
+            break;
+        case Protocol::freshUser:
+            break;
+        }
+    }
 }
 
 bool SettingsLogic::CheckSettingValue(const QString &key, const QVariant &defaultValue)

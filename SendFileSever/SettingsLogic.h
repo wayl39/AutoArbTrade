@@ -35,6 +35,9 @@ public:
     QSettings *getSetting() const;
     void setSetting(QSettings *setting);
 
+public slots:
+    void slotOnReadyRead();
+
 signals:
     void signalStartConnect(unsigned short port, QString ip);
 

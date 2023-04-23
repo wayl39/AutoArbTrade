@@ -17,7 +17,7 @@ void RecvFile::run()
     // 接收数据
     connect(m_tcp, &QTcpSocket::readyRead, this, [=]{
         Protocol p;
-        m_tcp->read();
+//        m_tcp->read();
     });
 
     // 进入事件循环
