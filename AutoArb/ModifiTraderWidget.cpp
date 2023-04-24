@@ -37,7 +37,7 @@ void ModifiTraderWidget::slotOkBtnClicked()
     msgMap.insert(DefineFields::PassWord, ui->lineEdit_password->text());
     msgMap.insert(DefineFields::Mac, ui->lineEdit_mac->text());
     msgMap.insert(DefineFields::FundListStr, ui->textEdit_account->toPlainText().split("\n"));
-    SettingsLogic::GetInstance()->writeSetting(msgMap, errorInfo);
+    SettingsLogic::GetInstance()->writeSetting(msgMap);
 }
 
 void ModifiTraderWidget::slotPVisibleBtnClicked()

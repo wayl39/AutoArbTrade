@@ -36,4 +36,29 @@ public:
     static const QString ModifiTraderMsg; // = "modifiTraderMsg";
 };
 
+class MasterFileds : public noncopyable
+{
+public:
+    static const QString ret; // = "10008";
+    static const QString textDescribe; // = "58";
+
+//    static const QString DeleteTrader; // = "deleteTrader";
+//    static const QString AddFundAccount; // = "addFundAccount";
+//    static const QString DeleteFundAccount; // = "deleteFundAccount";
+//    static const QString ModifiTraderMsg; // = "modifiTraderMsg";
+};
+
+class MasterValues : public noncopyable
+{
+public:
+    class ResponseResult : public noncopyable
+    {
+    public:
+        static const QString success; // = "0";
+        static const QString fail; // = "1";
+        static const QString timeOut; // = "2";
+    };
+
+};
+
 #endif // DEFINEFIELDS_H

@@ -23,7 +23,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::slotLogSuccess(const QString &cliendId)
 {
-    if (cliendId == SettingsLogic::GetInstance()->getSettingValue(DefineFields::Admin_Account).toString()){
+    if (cliendId == DefineFields::Admin){
         close();
         m_adminWindow = new AdminWindow;
         m_adminWindow->show();

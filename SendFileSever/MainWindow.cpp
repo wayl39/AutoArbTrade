@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     setWindowTitle("服务器");
 
-    qDebug() << "服务器主线程：" << QThread::currentThread();
+//    qDebug() << "服务器主线程：" << QThread::currentThread();
     m_s = new QTcpServer(this);
 
     connect(ui->pb_start, &QPushButton::clicked, this, [=]{

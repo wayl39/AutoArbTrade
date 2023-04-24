@@ -21,14 +21,14 @@ public:
     void uninit();
 
     // 验证Log
-    void logProcFunc(const QVariantMap& dataMap, QString& errorInfo);
+    void logProcFunc(const QVariantMap& dataMap, QVariantMap &responseMsg);
 
     QVariant getSettingValue(const QString& key, const QVariant &defaultValue = QVariant());
     void setSettingValue(const QString& key, const QVariant &value);
 
-    void writeSetting(const QVariantMap& dataMap, QString& errorInfo);
+    void writeSetting(const QVariantMap& dataMap, QVariantMap &responseMap);
 
-    void deleteSetting(const QVariantMap& dataMap, QString& errorInfo);
+    void deleteSetting(const QVariantMap& dataMap, QVariantMap &responseMap);
 
     void modifiSetting(const QVariantMap& dataMap, QString& errorInfo);
 
@@ -37,6 +37,8 @@ public:
 
 public slots:
     void slotOnReadyRead();
+
+    void slotDisconnected();
 
 signals:
     void signalStartConnect(unsigned short port, QString ip);
@@ -49,6 +51,8 @@ private:
 
     bool CheckSettingValue(const QString& key, const QVariant &defaultValue);
 
+    void sendMsg(const QVariantMap& msgMap, int type, QTcpSocket *socket);
+
 private:
     SettingsLogic();
 
@@ -56,7 +60,7 @@ private:
 
     QTcpServer* m_s{Q_NULLPTR};
 
-    QTcpSocket* m_socket{Q_NULLPTR};
+//    QTcpSocket* m_socket{Q_NULLPTR};
 
 };
 

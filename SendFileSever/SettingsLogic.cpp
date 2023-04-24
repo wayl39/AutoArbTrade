@@ -13,7 +13,7 @@
 
 SettingsLogic *SettingsLogic::GetInstance()
 {
-    qDebug() << "服务器主线程：" << QThread::currentThread();
+//    qDebug() << "服务器主线程：" << QThread::currentThread();
     static SettingsLogic instance;
     return &instance;
 }
@@ -65,35 +65,45 @@ void SettingsLogic::uninit()
 
 }
 
-void SettingsLogic::logProcFunc(const QVariantMap &dataMap, QString &errorInfo)
+void SettingsLogic::logProcFunc(const QVariantMap &dataMap, QVariantMap& responseMsg)
 {
     QString username = dataMap.value(DefineFields::UserId).toString();
     QString password = dataMap.value(DefineFields::PassWord).toString();
     QString macAddress = dataMap.value(DefineFields::Mac).toString();
     if (getSettingValue(DefineFields::Admin_Account).toString() == username
             && SettingsLogic::GetInstance()->getSettingValue(DefineFields::Admin_Password).toString() == password){
+        responseMsg.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
+        responseMsg.insert(MasterFileds::textDescribe, QString());
+        responseMsg.insert(DefineFields::UserId, username);
         return;
     }
+    QString ret, errorInfo;
     QStringList cliendIdList = m_settings->childGroups();
 //    qDebug() << __FUNCTION__ << cliendIdList;
     if (!cliendIdList.contains(username)){
+        ret = MasterValues::ResponseResult::fail;
         errorInfo = "没有此交易员账号，联系管理员添加";
-        return;
     }
     m_settings->beginGroup(username);
     if (username != m_settings->value(DefineFields::UserId).toString()){
+        ret = MasterValues::ResponseResult::fail;
         errorInfo = "账户填写错误";
     }
     if (password != m_settings->value(DefineFields::PassWord).toString()){
+        ret = MasterValues::ResponseResult::fail;
         errorInfo = "密码填写错误";
     }
     if (macAddress != m_settings->value(DefineFields::Mac).toString()){
+        ret = MasterValues::ResponseResult::fail;
         errorInfo = "MAC填写错误";
     }
     m_settings->endGroup();
-    if (!errorInfo.isEmpty()){
-        return;
+    if (errorInfo.isEmpty()){
+        ret = MasterValues::ResponseResult::success;
     }
+    responseMsg.insert(MasterFileds::ret, ret);
+    responseMsg.insert(MasterFileds::textDescribe, errorInfo);
+    responseMsg.insert(DefineFields::UserId, username);
 }
 
 QVariant SettingsLogic::getSettingValue(const QString &key, const QVariant &defaultValue)
@@ -106,20 +116,26 @@ void SettingsLogic::setSettingValue(const QString &key, const QVariant &value)
     m_settings->setValue(key, value);
 }
 
-void SettingsLogic::writeSetting(const QVariantMap &dataMap, QString &errorInfo)
+void SettingsLogic::writeSetting(const QVariantMap &dataMap, QVariantMap& responseMap)
 {
+    QString ret, errorInfo;
+    responseMap = dataMap;
     if (FuncType::AddTrader == dataMap.value(DefineFields::funcType).toString()){
         QString cliendId = dataMap.value(DefineFields::UserId).toString();
         QStringList cliendIdList = m_settings->childGroups();
         if (cliendIdList.contains(cliendId)){
+            ret = MasterValues::ResponseResult::fail;
             errorInfo = "此交易员账号已经添加，不能重复";
-            return;
+        } else{
+            m_settings->beginGroup(dataMap.value(DefineFields::UserId).toString());
+            m_settings->setValue(DefineFields::UserId,dataMap.value(DefineFields::UserId).toString());
+            m_settings->setValue(DefineFields::PassWord, dataMap.value(DefineFields::PassWord).toString());
+            m_settings->setValue(DefineFields::Mac, dataMap.value(DefineFields::Mac).toString());
+            m_settings->endGroup();
+            ret = MasterValues::ResponseResult::success;
         }
-        m_settings->beginGroup(dataMap.value(DefineFields::UserId).toString());
-        m_settings->setValue(DefineFields::UserId,dataMap.value(DefineFields::UserId).toString());
-        m_settings->setValue(DefineFields::PassWord, dataMap.value(DefineFields::PassWord).toString());
-        m_settings->setValue(DefineFields::Mac, dataMap.value(DefineFields::Mac).toString());
-        m_settings->endGroup();
+        responseMap.insert(MasterFileds::ret, ret);
+        responseMap.insert(MasterFileds::textDescribe, errorInfo);
     }
     else if (FuncType::AddFundAccount == dataMap.value(DefineFields::funcType).toString()){
         QString traderId = dataMap.value(DefineFields::UserId).toString();
@@ -127,27 +143,40 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap, QString &errorInfo)
 
         QStringList cliendIdList = m_settings->childGroups();
         if (!cliendIdList.contains(traderId)){
+            ret = MasterValues::ResponseResult::fail;
             errorInfo = "此交易员账号不存在，请联系管理员添加";
+
+            responseMap.insert(MasterFileds::ret, ret);
+            responseMap.insert(MasterFileds::textDescribe, errorInfo);
             return;
         }
         m_settings->beginGroup(dataMap.value(DefineFields::UserId).toString());
         QStringList fundList = m_settings->value(DefineFields::FundListStr).toStringList();
         if (fundList.contains(fundAccount)){
+            ret = MasterValues::ResponseResult::fail;
             errorInfo = "此资金账户已经存在，不能重复添加";
             m_settings->endGroup();
+
+            responseMap.insert(MasterFileds::ret, ret);
+            responseMap.insert(MasterFileds::textDescribe, errorInfo);
             return;
         }
         fundList.append(fundAccount);
         m_settings->setValue(DefineFields::FundListStr,fundList);
-
         m_settings->endGroup();
+        ret = MasterValues::ResponseResult::success;
+        responseMap.insert(MasterFileds::ret, ret);
+        responseMap.insert(MasterFileds::textDescribe, errorInfo);
     }
-    else if (FuncType::AddFundAccount == dataMap.value(DefineFields::funcType).toString()){
+    else if (FuncType::ModifiTraderMsg == dataMap.value(DefineFields::funcType).toString()){
         QString traderId = dataMap.value(DefineFields::UserId).toString();
 
         QStringList cliendIdList = m_settings->childGroups();
         if (!cliendIdList.contains(traderId)){
+            ret = MasterValues::ResponseResult::fail;
             errorInfo = "此交易员账号不存在，请联系管理员添加";
+            responseMap.insert(MasterFileds::ret, ret);
+            responseMap.insert(MasterFileds::textDescribe, errorInfo);
             return;
         }
         m_settings->beginGroup(dataMap.value(DefineFields::UserId).toString());
@@ -158,28 +187,36 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap, QString &errorInfo)
             m_settings->setValue(DefineFields::PassWord, dataMap.value(DefineFields::PassWord).toString());
         if (mac != dataMap.value(DefineFields::Mac).toString())
             m_settings->setValue(DefineFields::Mac, dataMap.value(DefineFields::Mac).toString());
-//        fundList.sort();
-//        QStringList fundListTmp = dataMap.value(DefineFields::FundListStr).toStringList();
-//        fundListTmp.sort();
         if (fundList != dataMap.value(DefineFields::FundListStr).toStringList())
             m_settings->setValue(DefineFields::FundListStr,fundList);
 
         m_settings->endGroup();
+        ret = MasterValues::ResponseResult::success;
+        responseMap.insert(MasterFileds::ret, ret);
+        responseMap.insert(MasterFileds::textDescribe, errorInfo);
     }
 }
 
-void SettingsLogic::deleteSetting(const QVariantMap &dataMap, QString &errorInfo)
+void SettingsLogic::deleteSetting(const QVariantMap &dataMap, QVariantMap &responseMap)
 {
+    QString ret, errorInfo;
+    responseMap = dataMap;
     if (FuncType::DeleteTrader == dataMap.value(DefineFields::funcType).toString()){
         QStringList cliendIdList = m_settings->childGroups();
         QString traderId = dataMap.value(DefineFields::UserId).toString();
         if (!cliendIdList.contains(traderId)){
+            ret = MasterValues::ResponseResult::fail;
             errorInfo = "此交易员账号不存在，无法进行删除";
+            responseMap.insert(MasterFileds::ret, ret);
+            responseMap.insert(MasterFileds::textDescribe, errorInfo);
             return;
         }
         m_settings->beginGroup(dataMap.value(DefineFields::UserId).toString());
         m_settings->remove("");
         m_settings->endGroup();
+        ret = MasterValues::ResponseResult::success;
+        responseMap.insert(MasterFileds::ret, ret);
+        responseMap.insert(MasterFileds::textDescribe, errorInfo);
     }
     if (FuncType::DeleteFundAccount == dataMap.value(DefineFields::funcType).toString()){
         QString traderId = dataMap.value(DefineFields::UserId).toString();
@@ -187,20 +224,29 @@ void SettingsLogic::deleteSetting(const QVariantMap &dataMap, QString &errorInfo
 
         QStringList cliendIdList = m_settings->childGroups();
         if (!cliendIdList.contains(traderId)){
+            ret = MasterValues::ResponseResult::fail;
             errorInfo = "此交易员账号不存在，请重新填写";
+            responseMap.insert(MasterFileds::ret, ret);
+            responseMap.insert(MasterFileds::textDescribe, errorInfo);
             return;
         }
         m_settings->beginGroup(dataMap.value(DefineFields::UserId).toString());
         QStringList fundList = m_settings->value(DefineFields::FundListStr).toStringList();
         if (!fundList.contains(fundAccount)){
+            ret = MasterValues::ResponseResult::fail;
             errorInfo = "此资金账户不存在，无法删除";
             m_settings->endGroup();
+            responseMap.insert(MasterFileds::ret, ret);
+            responseMap.insert(MasterFileds::textDescribe, errorInfo);
             return;
         }
         fundList.removeOne(fundAccount);
         m_settings->setValue(DefineFields::FundListStr,fundList);
 
         m_settings->endGroup();
+        ret = MasterValues::ResponseResult::success;
+        responseMap.insert(MasterFileds::ret, ret);
+        responseMap.insert(MasterFileds::textDescribe, errorInfo);
     }
 }
 
@@ -221,12 +267,13 @@ void SettingsLogic::initSetting()
 
     connect(m_s, &QTcpServer::newConnection, this, [=]{
         QTcpSocket* tcp = m_s->nextPendingConnection();
+        qDebug() << QString("client new connect socket status: %1!").arg(tcp->isValid());
 
         /** @note 1. 管理套接字的读端 */
         connect(tcp, &QTcpSocket::readyRead, this, &SettingsLogic::slotOnReadyRead);
 
         /** @note 2. 管理套接字的断开 */
-        connect(tcp, SIGNAL(disconnected()), this, SLOT(slotDisconnected()));
+        connect(tcp, &QTcpSocket::disconnected, this, &SettingsLogic::slotDisconnected);
 
 //        // 创建子线程
 //        RecvFile* subThread = new RecvFile(tcp);
@@ -264,20 +311,39 @@ void SettingsLogic::slotOnReadyRead()
 
     Protocol p;
     int len = 0;
+    QVariantMap responseMap;
     while((len = p.unpack(buffer)) > 0){
         buffer = buffer.mid(len);
-
+        QVariantMap dataMap = p.getData();
         switch(p.getType()){
         case Protocol::none:
             break;
         case Protocol::login:
+            logProcFunc(dataMap, responseMap);
             break;
-        case Protocol::createRoom:
+        case Protocol::addTrader:
+        case Protocol::addAccount:
+        case Protocol::modifiTraderMsg:
+            writeSetting(dataMap, responseMap);
             break;
-        case Protocol::freshUser:
+        case Protocol::deleteTrader:
+        case Protocol::deleteAccount:
+            deleteSetting(dataMap, responseMap);
             break;
         }
+        Protocol response(p.getType());
+        response.setData(responseMap);
+        response.pack();
+        socket->write(response.pack());
+//        qDebug() << __FUNCTION__ << response.pack() << responseMap;
     }
+}
+
+void SettingsLogic::slotDisconnected()
+{
+    QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
+    socket->close();
+    socket->deleteLater();
 }
 
 bool SettingsLogic::CheckSettingValue(const QString &key, const QVariant &defaultValue)
@@ -289,4 +355,12 @@ bool SettingsLogic::CheckSettingValue(const QString &key, const QVariant &defaul
         return false;
     }
     return true;
+}
+
+void SettingsLogic::sendMsg(const QVariantMap &msgMap, int type, QTcpSocket* socket)
+{
+//    Protocol response((Protocol::Type)type);
+//    response.setData(msgMap);
+//    response.pack();
+//    socket->write(response.pack());
 }

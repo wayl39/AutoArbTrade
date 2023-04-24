@@ -15,8 +15,12 @@ public:
         none = 0,
         regist = 1,
         login = 2,
-        createRoom = 3,
-        freshUser = 4
+        addTrader = 3,
+        deleteTrader = 4,
+        addAccount = 5,
+        deleteAccount,
+        modifiTraderMsg,
+        log,
     };
     Protocol(Type type = none);
 

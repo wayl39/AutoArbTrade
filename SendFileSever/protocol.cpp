@@ -1,6 +1,7 @@
 #include "protocol.h"
 #include <QJsonDocument>
 #include <cstring>
+#include <QVariantMap>
 
 /**
  * @brief 构造函数
@@ -11,6 +12,17 @@ Protocol::Protocol(Type type)
 {
 
 }
+
+void Protocol::setData(const QVariantMap &data)
+{
+    object = QJsonObject(QJsonDocument::fromJson(QJsonDocument::fromVariant(QVariant(data)).toJson()).object());
+}
+
+QVariantMap Protocol::getData()
+{
+    return object.toVariantMap();
+}
+
 
 /**
  * @brief 打包

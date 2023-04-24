@@ -32,12 +32,26 @@ void AddAccountWidget::slotOkBtnClicked()
     dataMap.insert(DefineFields::funcType, FuncType::AddFundAccount);
     dataMap.insert(DefineFields::UserId, ui->lineEdit_traderAccount->text());
     dataMap.insert(DefineFields::FundAccount, ui->lineEdit_fundAccount->text());
-    SettingsLogic::GetInstance()->writeSetting(dataMap, errorInfo);
-    if (!errorInfo.isEmpty()){
-        QMessageBox::critical(this, "添加资金账户", errorInfo);
-        return;
+    SettingsLogic::GetInstance()->writeSetting(dataMap);
+//    if (!errorInfo.isEmpty()){
+//        QMessageBox::critical(this, "添加资金账户", errorInfo);
+//        return;
+//    }
+//        emit signalBtnOkClicked();
+}
+
+void AddAccountWidget::slotRspMsg(const QVariantMap &responseMap)
+{
+    QString ret = responseMap.value(MasterFileds::ret).toString();
+    QString errorInfo = responseMap.value(MasterFileds::textDescribe).toString();
+    if (MasterValues::ResponseResult::success == ret){
+        emit signalBtnOkClicked();
+    } else {
+        if (!errorInfo.isEmpty()){
+            QMessageBox::critical(this, "添加资金账户", errorInfo);
+            return;
+        }
     }
-    emit signalBtnOkClicked();
 }
 
 void AddAccountWidget::createWidget()
@@ -52,7 +66,7 @@ void AddAccountWidget::createLayout()
 
 void AddAccountWidget::createConnect()
 {
-
+    connect(SettingsLogic::GetInstance(), &SettingsLogic::signalAddAccountRspMsg, this, &AddAccountWidget::slotRspMsg);
 }
 
 void AddAccountWidget::checkUiData(QString &errorInfo)

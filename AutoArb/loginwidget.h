@@ -19,6 +19,9 @@ public:
     explicit LoginWidget(QWidget *parent = nullptr);
     ~LoginWidget();
 
+public slots:
+    void slotProcFunc(const QVariantMap& responseMsg);
+
 signals:
     void signalLogSuccess(const QString& cliendId);
 

@@ -16,6 +16,8 @@ LoginWidget::LoginWidget(QWidget *parent)
 {
     ui->setupUi(this);
     ui->btnRegister->hide();
+
+    connect(SettingsLogic::GetInstance(), &SettingsLogic::signalResponseMsg, this, &LoginWidget::slotProcFunc);
 }
 
 /**
@@ -24,6 +26,17 @@ LoginWidget::LoginWidget(QWidget *parent)
 LoginWidget::~LoginWidget()
 {
     delete ui;
+}
+
+void LoginWidget::slotProcFunc(const QVariantMap &responseMsg)
+{
+    QString ret = responseMsg.value(MasterFileds::ret).toString();
+    QString errorInfo = responseMsg.value(MasterFileds::textDescribe).toString();
+    if (MasterValues::ResponseResult::success == ret){
+        emit signalLogSuccess(responseMsg.value(DefineFields::UserId).toString());
+    } else {
+        ui->label_tip->setText(errorInfo);
+    }
 }
 
 /**
@@ -64,12 +77,5 @@ void LoginWidget::on_btnLogin_clicked()
     msgMap.insert(DefineFields::UserId, username);
     msgMap.insert(DefineFields::PassWord, password);
     msgMap.insert(DefineFields::Mac, macAddress);
-    QString errorInfo;
-    SettingsLogic::GetInstance()->logProcFunc(msgMap, errorInfo);
-    if (errorInfo.isEmpty()){
-        emit signalLogSuccess(username);
-    } else {
-        ui->label_tip->setText(errorInfo);
-    }
-//    if (cliendIdList.contains())
+    SettingsLogic::GetInstance()->logProcFunc(msgMap);
 }

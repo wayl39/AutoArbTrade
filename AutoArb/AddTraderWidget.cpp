@@ -35,12 +35,12 @@ void AddTraderWidget::slotOkBtnClicked()
     dataMap.insert(DefineFields::UserId, ui->lineEdit_account->text());
     dataMap.insert(DefineFields::PassWord, ui->lineEdit_password->text());
     dataMap.insert(DefineFields::Mac, ui->lineEdit_mac->text());
-    SettingsLogic::GetInstance()->writeSetting(dataMap, errorInfo);
-    if (!errorInfo.isEmpty()){
-        QMessageBox::critical(this, "添加交易员", errorInfo);
-        return;
-    }
-    emit signalBtnOkClicked(ui->lineEdit_account->text());
+    SettingsLogic::GetInstance()->writeSetting(dataMap);
+//    if (!errorInfo.isEmpty()){
+//        QMessageBox::critical(this, "添加交易员", errorInfo);
+//        return;
+//    }
+//    emit signalBtnOkClicked(ui->lineEdit_account->text());
 }
 
 void AddTraderWidget::slotPVisibleBtnClicked()

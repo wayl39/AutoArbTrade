@@ -17,3 +17,10 @@ const QString FuncType::DeleteTrader = "deleteTrader";
 const QString FuncType::AddFundAccount = "addFundAccount";
 const QString FuncType::DeleteFundAccount = "deleteFundAccount";
 const QString FuncType::ModifiTraderMsg = "modifiTraderMsg";
+
+const QString MasterFileds::ret = "10008";
+const QString MasterFileds::textDescribe = "58";
+
+const QString MasterValues::ResponseResult::success = "0";
+const QString MasterValues::ResponseResult::fail = "1";
+const QString MasterValues::ResponseResult::timeOut = "2";
