@@ -26,35 +26,6 @@ SettingsLogic::~SettingsLogic()
 void SettingsLogic::init()
 {
     initSetting();
-//    // 创建线程对象
-//    QThread* t = new QThread;
-//    // 创建任务对象
-//    SendFile* work = new SendFile;
-
-//    work->moveToThread(t);
-
-//    connect(this, &SettingsLogic::signalStartConnect, work, &SendFile::connectServer);
-
-//    connect(work, &SendFile::signalConnectOk, this, [=]{
-//        qDebug() << __FUNCTION__ << "成功连接服务器";
-//    });
-
-//    connect(work, &SendFile::signalDisConnect, this, [=]{
-//        // 资源释放
-//        t->quit();
-//        t->wait();
-//        work->deleteLater();
-//        t->deleteLater();
-//    });
-
-//    connect(this, &SettingsLogic::sendFile, work, &SendFile::sendFile);
-
-//    t->start();
-
-//    emit signalStartConnect(m_settings->value(DefineFields::Port).toString().toUShort(), m_settings->value(DefineFields::Ip).toString());
-
-//    QString filePath = m_settings->fileName();
-//    emit sendFile(filePath);
 
 //    FileSystemWatcher::pInstance()->addWatchPath(filePath);
 //    connect(FileSystemWatcher::pInstance(), &FileSystemWatcher::signalFileChange, this, &SettingsLogic::sendFile);
@@ -75,6 +46,8 @@ void SettingsLogic::logProcFunc(const QVariantMap &dataMap, QVariantMap& respons
         responseMsg.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
         responseMsg.insert(MasterFileds::textDescribe, QString());
         responseMsg.insert(DefineFields::UserId, username);
+
+
         return;
     }
     QString ret, errorInfo;
@@ -359,10 +332,35 @@ bool SettingsLogic::CheckSettingValue(const QString &key, const QVariant &defaul
     return true;
 }
 
-void SettingsLogic::sendMsg(const QVariantMap &msgMap, int type, QTcpSocket* socket)
+void SettingsLogic::sendFileMsg(const QVariantMap &msgMap, int type, QTcpSocket* socket)
 {
-//    Protocol response((Protocol::Type)type);
-//    response.setData(msgMap);
-//    response.pack();
-//    socket->write(response.pack());
+    // 创建线程对象
+    QThread* t = new QThread;
+    // 创建任务对象
+    SendFile* work = new SendFile;
+
+    work->moveToThread(t);
+
+    connect(this, &SettingsLogic::signalStartConnect, work, &SendFile::connectServer);
+
+    connect(work, &SendFile::signalConnectOk, this, [=]{
+        qDebug() << __FUNCTION__ << "成功连接服务器";
+    });
+
+    connect(work, &SendFile::signalDisConnect, this, [=]{
+        // 资源释放
+        t->quit();
+        t->wait();
+        work->deleteLater();
+        t->deleteLater();
+    });
+
+    connect(this, &SettingsLogic::sendFile, work, &SendFile::sendFile);
+
+    t->start();
+
+    emit signalStartConnect(m_settings->value(DefineFields::Port).toString().toUShort(), m_settings->value(DefineFields::Ip).toString());
+
+    QString filePath = m_settings->fileName();
+    emit sendFile(filePath);
 }

@@ -51,7 +51,7 @@ private:
 
     bool CheckSettingValue(const QString& key, const QVariant &defaultValue);
 
-    void sendMsg(const QVariantMap& msgMap, int type, QTcpSocket *socket);
+    void sendFileMsg(const QVariantMap& msgMap, int type, QTcpSocket *socket);
 
 private:
     SettingsLogic();

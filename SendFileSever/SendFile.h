@@ -8,10 +8,8 @@ class SendFile : public QObject
 {
     Q_OBJECT
 public:
-    explicit SendFile(QObject *parent = nullptr);
+    explicit SendFile(QTcpSocket *tcp, QObject *parent = nullptr);
 
-    // 连接服务器
-    void connectServer(unsigned short port, QString ip);
     // 发送文件
     void sendFile(QString path);
 

@@ -4,17 +4,14 @@
 #include <QFileInfo>
 #include <QThread>
 
-SendFile::SendFile(QObject *parent) : QObject(parent)
+SendFile::SendFile(QTcpSocket* tcp,QObject *parent) : QObject(parent)
 {
-
+    m_tcp = tcp;
 }
 
 void SendFile::connectServer(unsigned short port, QString ip)
 {
-    qDebug() << "客户端子线程：" << QThread::currentThread();
-    m_tcp = new QTcpSocket;
-    m_tcp->connectToHost(QHostAddress(ip), port);
-
+    qDebug() << "服务器子线程：" << QThread::currentThread();
     connect(m_tcp, &QTcpSocket::connected, this, &SendFile::signalConnectOk);
     connect(m_tcp, &QTcpSocket::disconnected, this, [=](){
         m_tcp->close();
