@@ -9,17 +9,6 @@ SendFile::SendFile(QTcpSocket* tcp,QObject *parent) : QObject(parent)
     m_tcp = tcp;
 }
 
-void SendFile::connectServer(unsigned short port, QString ip)
-{
-    qDebug() << "服务器子线程：" << QThread::currentThread();
-    connect(m_tcp, &QTcpSocket::connected, this, &SendFile::signalConnectOk);
-    connect(m_tcp, &QTcpSocket::disconnected, this, [=](){
-        m_tcp->close();
-        m_tcp->deleteLater();
-        emit signalDisConnect();
-    });
-}
-
 void SendFile::sendFile(QString path)
 {
     qDebug() << __FUNCTION__ << path;
