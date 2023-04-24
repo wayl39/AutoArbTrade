@@ -312,9 +312,11 @@ void SettingsLogic::slotOnReadyRead()
     Protocol p;
     int len = 0;
     QVariantMap responseMap;
+
     while((len = p.unpack(buffer)) > 0){
         buffer = buffer.mid(len);
         QVariantMap dataMap = p.getData();
+        qDebug() << __FUNCTION__ << p.getType() << ":" << dataMap;
         switch(p.getType()){
         case Protocol::none:
             break;
@@ -333,9 +335,9 @@ void SettingsLogic::slotOnReadyRead()
         }
         Protocol response(p.getType());
         response.setData(responseMap);
-        response.pack();
+//        response.pack();
         socket->write(response.pack());
-//        qDebug() << __FUNCTION__ << response.pack() << responseMap;
+        qDebug() << __FUNCTION__ << response.getType() << " response:" << responseMap;
     }
 }
 

@@ -1,7 +1,7 @@
 #include <QApplication>
 #include "SettingsLogic.h"
 
-#define Test 0
+#define Test 1
 
 #if Test == 1
 #include "AdminWindow.h"

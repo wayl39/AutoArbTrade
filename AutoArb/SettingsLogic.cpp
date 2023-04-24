@@ -87,6 +87,7 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap)
         Protocol p(Protocol::addTrader);
         p.setData(dataMap);
         m_socket->write(p.pack());
+        qDebug() << __FUNCTION__ << "send msg:" << dataMap;
     }
     else if (FuncType::AddFundAccount == dataMap.value(DefineFields::funcType).toString()){
         Protocol p(Protocol::addAccount);
@@ -187,7 +188,7 @@ void SettingsLogic::slotOnReadyRead()
         default:
             break;
         }
-
+        qInfo() << __FUNCTION__ << p.getType() << "receive msg:" << dataMap;
     }
 }
 

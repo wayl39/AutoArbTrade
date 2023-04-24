@@ -58,14 +58,15 @@ void AddTraderWidget::slotPVisibleBtnClicked()
 
 void AddTraderWidget::slotRspMsg(const QVariantMap &responseMap)
 {
+//    qDebug() << __FUNCTION__ << responseMap;
     QString ret = responseMap.value(MasterFileds::ret).toString();
     QString errorInfo = responseMap.value(MasterFileds::textDescribe).toString();
-    QString account = responseMap.value(DefineFields::FundAccount).toString();
+    QString trader = responseMap.value(DefineFields::UserId).toString();
     if (MasterValues::ResponseResult::success == ret){
-        emit signalBtnOkClicked(account);
+        emit signalBtnOkClicked(trader);
     } else {
         if (!errorInfo.isEmpty()){
-            QMessageBox::critical(this, "添加资金账户", errorInfo);
+            QMessageBox::critical(this, "添加交易员", errorInfo);
             return;
         }
     }
@@ -88,7 +89,7 @@ void AddTraderWidget::createConnect()
 {
     connect(ui->pb_passwordVisible, &QPushButton::clicked, this, &AddTraderWidget::slotPVisibleBtnClicked);
 
-    connect(SettingsLogic::GetInstance(), &SettingsLogic::signalAddAccountRspMsg, this, &AddTraderWidget::slotRspMsg);
+    connect(SettingsLogic::GetInstance(), &SettingsLogic::signalAddTraderRspMsg, this, &AddTraderWidget::slotRspMsg);
 }
 
 void AddTraderWidget::checkUiData(QString &errorInfo)
