@@ -23,6 +23,8 @@ public slots:
 
 private slots:
     void slotPVisibleBtnClicked();
+
+    void slotRspMsg(const QVariantMap &responseMap);
 private:
     void createWidget();
     void createLayout();
