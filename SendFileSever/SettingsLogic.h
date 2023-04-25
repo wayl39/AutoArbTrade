@@ -40,10 +40,12 @@ public slots:
 
     void slotDisconnected();
 
+    void slotSendSettingFileEnd(const QVariantMap& dataMap);
+
 signals:
     void signalStartConnect(unsigned short port, QString ip);
 
-    void sendFile(QString path);
+    void signalSendFile(QString path);
 
 private:
 
@@ -51,7 +53,7 @@ private:
 
     bool CheckSettingValue(const QString& key, const QVariant &defaultValue);
 
-    void sendFileMsg(const QVariantMap& msgMap, int type, QTcpSocket *socket);
+    void sendFileMsg(QTcpSocket *socket);
 
 private:
     SettingsLogic();

@@ -6,7 +6,6 @@
 #include "ADialog.h"
 #include "AddTraderWidget.h"
 #include "AddAccountWidget.h"
-#include "SettingsLogic.h"
 #include <QSettings>
 #include "AdminUserItem.h"
 #include "DeleteTraderWidget.h"
@@ -25,6 +24,10 @@ AdminWindow::AdminWindow(QWidget *parent) :
     createWidget();
     createLayout();
     createConnect();
+
+    QVariantMap msgMap;
+    msgMap.insert(DefineFields::funcType, FuncType::Settings);
+    SettingsLogic::GetInstance()->writeSetting(msgMap);
 }
 
 AdminWindow::~AdminWindow()
@@ -65,40 +68,73 @@ void AdminWindow::slotDeleteTraderSuccess(const QString &cliendId)
 
 void AdminWindow::slotBtnModifiClicked(const QString &clientId)
 {
-    QSettings *setting = SettingsLogic::GetInstance()->getSetting();
-    setting->beginGroup(clientId);
-    QStringList keys = setting->childKeys();
     QVariantMap msgMap;
-    foreach(auto key, keys){
-        msgMap.insert(key, setting->value(key));
+    msgMap.insert(DefineFields::funcType, FuncType::ReadTraderMsg);
+    msgMap.insert(DefineFields::UserId, clientId);
+    SettingsLogic::GetInstance()->writeSetting(msgMap);
+}
+
+void AdminWindow::slotBtnDeleteClicked()
+{
+//    ui->listWidget_trader->findItems()
+    QListWidgetItem *item = ui->listWidget_trader->currentItem();
+    if (!item)
+        return;
+    QVariantMap dataMap;
+    dataMap.insert(DefineFields::funcType, FuncType::DeleteTrader);
+    dataMap.insert(DefineFields::UserId, item->text());
+//    QString errorInfo;
+    SettingsLogic::GetInstance()->deleteSetting(dataMap);
+
+}
+
+void AdminWindow::slotSettingFile(const QVariantMap &dataMap)
+{
+    qDebug() << __FUNCTION__ << dataMap;
+    QStringList cliendIdList = dataMap.keys();
+    foreach(auto cliendId, cliendIdList){
+        QListWidgetItem* item = new QListWidgetItem(cliendId);
+        AdminUserItem *widget = new AdminUserItem;
+        widget->setItemName(cliendId);
+        item->setSizeHint(QSize(200, 40));
+        ui->listWidget_trader->addItem(item);
+        ui->listWidget_trader->setItemWidget(item, widget);
+        connect(widget, &AdminUserItem::signalBtnDeleteClicked, this, &AdminWindow::slotBtnDeleteClicked);
+
+        connect(widget, &AdminUserItem::signalBtnModifiClicked, this, &AdminWindow::slotBtnModifiClicked);
     }
+}
 
-    setting->endGroup();
-//    qDebug() << __FUNCTION__ << msgMap << clientId;
-
+void AdminWindow::slotReadTraderMsg(const QVariantMap &dataMap)
+{
+    QString ret = dataMap.value(MasterFileds::ret).toString();
+    if (MasterValues::ResponseResult::fail == ret){
+        QMessageBox::critical(this, "修改交易员信息", dataMap.value(MasterFileds::textDescribe).toString());
+        return;
+    }
     ADialog dialog("修改交易员信息");
     ModifiTraderWidget widget;
     dialog.addWidget(&widget);
-    widget.initUiData(msgMap);
+    widget.initUiData(dataMap);
     connect(&dialog, &ADialog::signalBtnOkClicked, &widget, &ModifiTraderWidget::slotOkBtnClicked);
     connect(&widget, &ModifiTraderWidget::signalBtnOkClicked, &dialog, &ADialog::accept);
 
     dialog.exec();
 }
 
-void AdminWindow::slotBtnDeleteClicked()
+void AdminWindow::slotDeleteTraderMsg(const QVariantMap &dataMap)
 {
-    QListWidgetItem *item = ui->listWidget_trader->currentItem();
-    QVariantMap dataMap;
-    dataMap.insert(DefineFields::funcType, FuncType::DeleteTrader);
-    dataMap.insert(DefineFields::UserId, item->text());
-    QString errorInfo;
-    SettingsLogic::GetInstance()->deleteSetting(dataMap, errorInfo);
-    if (!errorInfo.isEmpty())
+    QString ret = dataMap.value(MasterFileds::ret).toString();
+    if (MasterValues::ResponseResult::success != ret)
     {
+        QString errorInfo = dataMap.value(MasterFileds::textDescribe).toString();
         QMessageBox::critical(this, "交易员账户删除", errorInfo);
         return;
     }
+    QString cliendId = dataMap.value(DefineFields::UserId).toString();
+    QListWidgetItem *item = ui->listWidget_trader->currentItem();
+    if (!item)
+        return;
     ui->listWidget_trader->removeItemWidget(item);
     delete item;
 }
@@ -109,7 +145,7 @@ void AdminWindow::slotAddTraderClicked()
     AddTraderWidget widget;
     dialog.addWidget(&widget);
     connect(&dialog, &ADialog::signalBtnOkClicked, &widget, &AddTraderWidget::slotOkBtnClicked);
-    connect(&widget, &AddTraderWidget::signalBtnOkClicked, &dialog, &ADialog::accept);
+//    connect(&widget, &AddTraderWidget::signalBtnOkClicked, &dialog, &ADialog::accept);
     connect(&widget, &AddTraderWidget::signalBtnOkClicked, this, &AdminWindow::slotAddTraderSuccess);
 
     dialog.exec();
@@ -186,19 +222,6 @@ void AdminWindow::createWidget()
     ui->stackedWidget->setCurrentWidget(ui->page_user);
     ui->menu_riskManager->clear();
     ui->menu_riskManager->setTitle("");
-
-    QStringList cliendIdList = SettingsLogic::GetInstance()->getSetting()->childGroups();
-    foreach(auto cliendId, cliendIdList){
-        QListWidgetItem* item = new QListWidgetItem(cliendId);
-        AdminUserItem *widget = new AdminUserItem;
-        widget->setItemName(cliendId);
-        item->setSizeHint(QSize(200, 40));
-        ui->listWidget_trader->addItem(item);
-        ui->listWidget_trader->setItemWidget(item, widget);
-        connect(widget, &AdminUserItem::signalBtnDeleteClicked, this, &AdminWindow::slotBtnDeleteClicked);
-
-        connect(widget, &AdminUserItem::signalBtnModifiClicked, this, &AdminWindow::slotBtnModifiClicked);
-    }
 }
 
 void AdminWindow::createLayout()
@@ -214,4 +237,10 @@ void AdminWindow::createConnect()
     connect(ui->deleteFundAction, &QAction::triggered, this, &AdminWindow::slotDeleteFundClicked);
     connect(ui->addRiskAction, &QAction::triggered, this, &AdminWindow::slotAddRiskClicked);
     connect(ui->deleteRiskAction, &QAction::triggered, this, &AdminWindow::slotDeleteRiskClicked);
+
+    connect(SettingsLogic::GetInstance(), &SettingsLogic::signalSettingFile, this, &AdminWindow::slotSettingFile);
+    connect(SettingsLogic::GetInstance(), &SettingsLogic::signalReadTraderRspMsg,this, &AdminWindow::slotReadTraderMsg);
+
+//    signalModifTraderRspMsg
+    connect(SettingsLogic::GetInstance(), &SettingsLogic::signalDeleteTraderRspMsg,this, &AdminWindow::slotDeleteTraderMsg);
 }

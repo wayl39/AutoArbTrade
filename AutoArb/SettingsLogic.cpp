@@ -25,38 +25,6 @@ SettingsLogic::~SettingsLogic()
 void SettingsLogic::init()
 {
     initSetting();
-//    // 创建线程对象
-//    QThread* t = new QThread;
-//    // 创建任务对象
-//    SendFile* work = new SendFile;
-
-//    work->moveToThread(t);
-
-//    connect(this, &SettingsLogic::signalStartConnect, work, &SendFile::connectServer);
-
-//    connect(work, &SendFile::signalConnectOk, this, [=]{
-//        qDebug() << __FUNCTION__ << "成功连接服务器";
-//    });
-
-//    connect(work, &SendFile::signalDisConnect, this, [=]{
-//        // 资源释放
-//        t->quit();
-//        t->wait();
-//        work->deleteLater();
-//        t->deleteLater();
-//    });
-
-//    connect(this, &SettingsLogic::sendFile, work, &SendFile::sendFile);
-
-//    t->start();
-
-//    emit signalStartConnect(mSetting->value(DefineFields::Port).toString().toUShort(), mSetting->value(DefineFields::Ip).toString());
-
-//    QString filePath = mSetting->fileName();
-//    emit sendFile(filePath);
-
-//    FileSystemWatcher::pInstance()->addWatchPath(filePath);
-//    connect(FileSystemWatcher::pInstance(), &FileSystemWatcher::signalFileChange, this, &SettingsLogic::sendFile);
 }
 
 void SettingsLogic::uninit()
@@ -66,6 +34,8 @@ void SettingsLogic::uninit()
 
 void SettingsLogic::logProcFunc(const QVariantMap &dataMap)
 {
+    if (!m_socket->isValid())
+        return;
     Protocol p(Protocol::login);
     p.setData(dataMap);
     m_socket->write(p.pack());
@@ -83,11 +53,18 @@ void SettingsLogic::setSettingValue(const QString &key, const QVariant &value)
 
 void SettingsLogic::writeSetting(const QVariantMap &dataMap)
 {
-    if (FuncType::AddTrader == dataMap.value(DefineFields::funcType).toString()){
+    if (!m_socket->isValid())
+        return;
+    if (FuncType::Settings == dataMap.value(DefineFields::funcType).toString()){
+        Protocol p(Protocol::settingFile);
+        p.setData(dataMap);
+        m_socket->write(p.pack());
+    }
+    else if (FuncType::AddTrader == dataMap.value(DefineFields::funcType).toString()){
         Protocol p(Protocol::addTrader);
         p.setData(dataMap);
         m_socket->write(p.pack());
-        qDebug() << __FUNCTION__ << "send msg:" << dataMap;
+//        qDebug() << __FUNCTION__ << "send msg:" << dataMap;
     }
     else if (FuncType::AddFundAccount == dataMap.value(DefineFields::funcType).toString()){
         Protocol p(Protocol::addAccount);
@@ -98,17 +75,21 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap)
         Protocol p(Protocol::modifiTraderMsg);
         p.setData(dataMap);
         m_socket->write(p.pack());
+    } else if (FuncType::ReadTraderMsg == dataMap.value(DefineFields::funcType).toString()){
+        Protocol p(Protocol::readTraderMsg);
+        p.setData(dataMap);
+        m_socket->write(p.pack());
     }
 }
 
-void SettingsLogic::deleteSetting(const QVariantMap &dataMap, QString &errorInfo)
+void SettingsLogic::deleteSetting(const QVariantMap &dataMap)
 {
     if (FuncType::DeleteTrader == dataMap.value(DefineFields::funcType).toString()){
         Protocol p(Protocol::deleteTrader);
         p.setData(dataMap);
         m_socket->write(p.pack());
     }
-    if (FuncType::DeleteFundAccount == dataMap.value(DefineFields::funcType).toString()){
+    else if (FuncType::DeleteFundAccount == dataMap.value(DefineFields::funcType).toString()){
         Protocol p(Protocol::deleteAccount);
         p.setData(dataMap);
         m_socket->write(p.pack());
@@ -151,9 +132,12 @@ void SettingsLogic::setSetting(QSettings *setting)
 
 void SettingsLogic::slotOnReadyRead()
 {
+    qDebug() << __FUNCTION__;
     QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
+    if (!socket->isValid())
+        return;
     QByteArray buffer = socket->readAll();
-
+//    qDebug() << __FUNCTION__ << buffer;
     Protocol p;
     int len = 0;
     QVariantMap responseMap;
@@ -166,6 +150,10 @@ void SettingsLogic::slotOnReadyRead()
         case Protocol::login:
 //            qDebug() << __FUNCTION__ << dataMap;
             emit signalResponseMsg(dataMap);
+            break;
+        case Protocol::settingFile:
+            qDebug() << __FUNCTION__ << dataMap;
+            emit signalSettingFile(dataMap);
             break;
         case Protocol::addTrader:
             emit signalAddTraderRspMsg(dataMap);
@@ -181,7 +169,9 @@ void SettingsLogic::slotOnReadyRead()
         case Protocol::deleteAccount:
             emit signalDeleteAccountRspMsg(dataMap);
             break;
-
+        case Protocol::readTraderMsg:
+            emit signalReadTraderRspMsg(dataMap);
+            break;
         case Protocol::modifiTraderMsg:
             emit signalModifTraderRspMsg(dataMap);
             break;

@@ -46,8 +46,6 @@ void SettingsLogic::logProcFunc(const QVariantMap &dataMap, QVariantMap& respons
         responseMsg.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
         responseMsg.insert(MasterFileds::textDescribe, QString());
         responseMsg.insert(DefineFields::UserId, username);
-
-
         return;
     }
     QString ret, errorInfo;
@@ -140,6 +138,25 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap, QVariantMap& respon
         ret = MasterValues::ResponseResult::success;
         responseMap.insert(MasterFileds::ret, ret);
         responseMap.insert(MasterFileds::textDescribe, errorInfo);
+    }else if (FuncType::ReadTraderMsg == dataMap.value(DefineFields::funcType).toString()){
+        QString cliendId = dataMap.value(DefineFields::UserId).toString();
+        QStringList cliendIdList = m_settings->childGroups();
+        if (!cliendIdList.contains(cliendId)){
+            ret = MasterValues::ResponseResult::fail;
+            errorInfo = "此交易员账号不存在，请联系管理员添加";
+            responseMap.insert(MasterFileds::ret, ret);
+            responseMap.insert(MasterFileds::textDescribe, errorInfo);
+            return;
+        }
+        m_settings->beginGroup(dataMap.value(DefineFields::UserId).toString());
+        QStringList keys = m_settings->childKeys();
+        foreach(auto key, keys){
+            responseMap.insert(key, m_settings->value(key));
+        }
+        m_settings->endGroup();
+        ret = MasterValues::ResponseResult::success;
+        responseMap.insert(MasterFileds::ret, ret);
+        responseMap.insert(MasterFileds::textDescribe, errorInfo);
     }
     else if (FuncType::ModifiTraderMsg == dataMap.value(DefineFields::funcType).toString()){
         QString traderId = dataMap.value(DefineFields::UserId).toString();
@@ -161,7 +178,7 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap, QVariantMap& respon
         if (mac != dataMap.value(DefineFields::Mac).toString())
             m_settings->setValue(DefineFields::Mac, dataMap.value(DefineFields::Mac).toString());
         if (fundList != dataMap.value(DefineFields::FundListStr).toStringList())
-            m_settings->setValue(DefineFields::FundListStr,fundList);
+            m_settings->setValue(DefineFields::FundListStr,dataMap.value(DefineFields::FundListStr).toStringList());
 
         m_settings->endGroup();
         ret = MasterValues::ResponseResult::success;
@@ -191,7 +208,7 @@ void SettingsLogic::deleteSetting(const QVariantMap &dataMap, QVariantMap &respo
         responseMap.insert(MasterFileds::ret, ret);
         responseMap.insert(MasterFileds::textDescribe, errorInfo);
     }
-    if (FuncType::DeleteFundAccount == dataMap.value(DefineFields::funcType).toString()){
+    else if (FuncType::DeleteFundAccount == dataMap.value(DefineFields::funcType).toString()){
         QString traderId = dataMap.value(DefineFields::UserId).toString();
         QString fundAccount = dataMap.value(DefineFields::FundAccount).toString();
 
@@ -284,9 +301,9 @@ void SettingsLogic::slotOnReadyRead()
 
     Protocol p;
     int len = 0;
-    QVariantMap responseMap;
 
     while((len = p.unpack(buffer)) > 0){
+        QVariantMap responseMap;
         buffer = buffer.mid(len);
         QVariantMap dataMap = p.getData();
         qDebug() << __FUNCTION__ << p.getType() << ":" << dataMap;
@@ -295,17 +312,29 @@ void SettingsLogic::slotOnReadyRead()
             break;
         case Protocol::login:
             logProcFunc(dataMap, responseMap);
+//            if (MasterValues::ResponseResult::success == responseMap.value(MasterFileds::ret).toString()
+//                    && getSettingValue(DefineFields::Admin_Account).toString() == dataMap.value(DefineFields::UserId).toString()){
+//                sendFileMsg(socket);
+//            }
+            break;
+        case Protocol::settingFile:
+            sendFileMsg(socket);
             break;
         case Protocol::addTrader:
         case Protocol::addAccount:
         case Protocol::modifiTraderMsg:
+        case Protocol::readTraderMsg:
             writeSetting(dataMap, responseMap);
             break;
         case Protocol::deleteTrader:
         case Protocol::deleteAccount:
             deleteSetting(dataMap, responseMap);
             break;
+        default:
+            break;
         }
+//        if (responseMap.isEmpty())
+//            continue;
         Protocol response(p.getType());
         response.setData(responseMap);
 //        response.pack();
@@ -321,6 +350,11 @@ void SettingsLogic::slotDisconnected()
     socket->deleteLater();
 }
 
+void SettingsLogic::slotSendSettingFileEnd(const QVariantMap &dataMap)
+{
+
+}
+
 bool SettingsLogic::CheckSettingValue(const QString &key, const QVariant &defaultValue)
 {
     QVariant varValue = m_settings->value(key);
@@ -332,22 +366,26 @@ bool SettingsLogic::CheckSettingValue(const QString &key, const QVariant &defaul
     return true;
 }
 
-void SettingsLogic::sendFileMsg(const QVariantMap &msgMap, int type, QTcpSocket* socket)
+void SettingsLogic::sendFileMsg(QTcpSocket* socket)
 {
     // 创建线程对象
     QThread* t = new QThread;
     // 创建任务对象
-    SendFile* work = new SendFile;
+    SendFile* work = new SendFile(socket);
 
     work->moveToThread(t);
 
-    connect(this, &SettingsLogic::signalStartConnect, work, &SendFile::connectServer);
+//    connect(this, &SettingsLogic::signalStartConnect, work, &SendFile::connectServer);
 
-    connect(work, &SendFile::signalConnectOk, this, [=]{
-        qDebug() << __FUNCTION__ << "成功连接服务器";
-    });
+//    connect(work, &SendFile::signalConnectOk, this, [=]{
+//        qDebug() << __FUNCTION__ << "成功连接服务器";
+//    });
 
-    connect(work, &SendFile::signalDisConnect, this, [=]{
+    connect(work, &SendFile::signalEnd, this, [=](const QVariantMap& dataMap){
+        Protocol p(Protocol::settingFile);
+        p.setData(dataMap);
+        socket->write(p.pack());
+
         // 资源释放
         t->quit();
         t->wait();
@@ -355,12 +393,10 @@ void SettingsLogic::sendFileMsg(const QVariantMap &msgMap, int type, QTcpSocket*
         t->deleteLater();
     });
 
-    connect(this, &SettingsLogic::sendFile, work, &SendFile::sendFile);
+    connect(this, &SettingsLogic::signalSendFile, work, &SendFile::slotSendFile);
 
     t->start();
 
-    emit signalStartConnect(m_settings->value(DefineFields::Port).toString().toUShort(), m_settings->value(DefineFields::Ip).toString());
-
     QString filePath = m_settings->fileName();
-    emit sendFile(filePath);
+    emit signalSendFile(filePath);
 }

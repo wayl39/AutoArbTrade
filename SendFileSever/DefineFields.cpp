@@ -11,11 +11,13 @@ const QString DefineFields::Admin_Password = "Admin_Password";
 const QString DefineFields::Ip = "ip";
 const QString DefineFields::Port = "port";
 
+const QString FuncType::Settings = "Settings";
 const QString FuncType::Log = "Log";
 const QString FuncType::AddTrader = "addTrader";
 const QString FuncType::DeleteTrader = "deleteTrader";
 const QString FuncType::AddFundAccount = "addFundAccount";
 const QString FuncType::DeleteFundAccount = "deleteFundAccount";
+const QString FuncType::ReadTraderMsg = "readTraderMsg";
 const QString FuncType::ModifiTraderMsg = "modifiTraderMsg";
 
 const QString MasterFileds::ret = "10008";

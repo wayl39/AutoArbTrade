@@ -29,11 +29,13 @@ public:
 class FuncType : public noncopyable
 {
 public:
+    static const QString Settings; // = "Settings";
     static const QString Log; // = "Log";
     static const QString AddTrader; // = "addTrader";
     static const QString DeleteTrader; // = "deleteTrader";
     static const QString AddFundAccount; // = "addFundAccount";
     static const QString DeleteFundAccount; // = "deleteFundAccount";
+    static const QString ReadTraderMsg; // = "readTraderMsg";
     static const QString ModifiTraderMsg; // = "modifiTraderMsg";
 };
 

@@ -25,6 +25,8 @@ public slots:
 
     void slotPVisibleBtnClicked();
 
+    void slotModifTraderRspMsg(const QVariantMap& dataMap);
+
 private:
     void createWidget();
     void createLayout();

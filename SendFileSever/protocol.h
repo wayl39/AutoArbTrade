@@ -19,8 +19,10 @@ public:
         deleteTrader = 4,
         addAccount = 5,
         deleteAccount,
+        readTraderMsg,
         modifiTraderMsg,
-        log
+        log,
+        settingFile,
     };
     Protocol(Type type = none);
 

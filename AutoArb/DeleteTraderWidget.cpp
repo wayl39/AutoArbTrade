@@ -31,7 +31,7 @@ void DeleteTraderWidget::slotOkBtnClicked()
     QVariantMap dataMap;
     dataMap.insert(DefineFields::funcType, FuncType::DeleteTrader);
     dataMap.insert(DefineFields::UserId, ui->lineEdit_account->text());
-    SettingsLogic::GetInstance()->deleteSetting(dataMap, errorInfo);
+    SettingsLogic::GetInstance()->deleteSetting(dataMap);
     if (!errorInfo.isEmpty()){
         QMessageBox::critical(this, "交易员账户删除", errorInfo);
         return;

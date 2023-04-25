@@ -24,6 +24,10 @@ public slots:
 
     void slotBtnDeleteClicked();
 private slots:
+    void slotSettingFile(const QVariantMap& dataMap);
+    void slotReadTraderMsg(const QVariantMap& dataMap);
+
+    void slotDeleteTraderMsg(const QVariantMap& dataMap);
     void slotAddTraderClicked();
     void slotDeleteTraderClicked();
     void slotAddFundClicked();

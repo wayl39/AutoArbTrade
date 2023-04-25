@@ -3,6 +3,7 @@
 #include "DefineFields.h"
 #include <QValidator>
 #include "SettingsLogic.h"
+#include <QMessageBox>
 
 ModifiTraderWidget::ModifiTraderWidget(QWidget *parent) :
     QWidget(parent),
@@ -29,15 +30,16 @@ void ModifiTraderWidget::initUiData(const QVariantMap &dataMap)
 
 void ModifiTraderWidget::slotOkBtnClicked()
 {
-    QString errorInfo;
-
     QVariantMap msgMap;
     msgMap.insert(DefineFields::funcType, FuncType::ModifiTraderMsg);
     msgMap.insert(DefineFields::UserId, ui->lineEdit_account->text());
     msgMap.insert(DefineFields::PassWord, ui->lineEdit_password->text());
     msgMap.insert(DefineFields::Mac, ui->lineEdit_mac->text());
     msgMap.insert(DefineFields::FundListStr, ui->textEdit_account->toPlainText().split("\n"));
+    qDebug() << __FUNCTION__ << ui->textEdit_account->toPlainText();
     SettingsLogic::GetInstance()->writeSetting(msgMap);
+//    QMessageBox::critical(this, "修改交易员信息", "1111");
+//    emit signalBtnOkClicked();
 }
 
 void ModifiTraderWidget::slotPVisibleBtnClicked()
@@ -50,6 +52,22 @@ void ModifiTraderWidget::slotPVisibleBtnClicked()
         ui->pb_passwordVisible->setProperty("show", false);
         ui->pb_passwordVisible->setText("隐藏");
         ui->lineEdit_password->setEchoMode(QLineEdit::Password);
+    }
+}
+
+void ModifiTraderWidget::slotModifTraderRspMsg(const QVariantMap &dataMap)
+{
+    qDebug() << __FUNCTION__ << dataMap;
+    QString ret = dataMap.value(MasterFileds::ret).toString();
+    QString errorInfo = dataMap.value(MasterFileds::textDescribe).toString();
+    QString trader = dataMap.value(DefineFields::UserId).toString();
+    if (MasterValues::ResponseResult::success == ret){
+        emit signalBtnOkClicked();
+    } else {
+        if (!errorInfo.isEmpty()){
+            QMessageBox::critical(this, "修改交易员信息", errorInfo);
+            return;
+        }
     }
 }
 
@@ -70,4 +88,5 @@ void ModifiTraderWidget::createLayout()
 void ModifiTraderWidget::createConnect()
 {
     connect(ui->pb_passwordVisible, &QPushButton::clicked, this, &ModifiTraderWidget::slotPVisibleBtnClicked);
+    connect(SettingsLogic::GetInstance(), &SettingsLogic::signalModifTraderRspMsg, this, &ModifiTraderWidget::slotModifTraderRspMsg);
 }

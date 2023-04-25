@@ -11,13 +11,13 @@ public:
     explicit SendFile(QTcpSocket *tcp, QObject *parent = nullptr);
 
     // 发送文件
-    void sendFile(QString path);
+    void slotSendFile(QString path);
 
 signals:
-    void signalConnectOk();
-    void signalDisConnect();
+//    void signalConnectOk();
+    void signalEnd(const QVariantMap& dataMap);
 
-    void signalProcess(int percent);
+//    void signalProcess(int percent);
 
 public slots:
 

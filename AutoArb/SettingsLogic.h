@@ -28,7 +28,7 @@ public:
 
     void writeSetting(const QVariantMap& dataMap);
 
-    void deleteSetting(const QVariantMap& dataMap, QString& errorInfo);
+    void deleteSetting(const QVariantMap& dataMap);
 
     void modifiSetting(const QVariantMap& dataMap, QString& errorInfo);
 
@@ -37,10 +37,12 @@ public:
 
 signals:
     void signalResponseMsg(const QVariantMap& msgMap);
+    void signalSettingFile(const QVariantMap& dataMap);
     void signalAddTraderRspMsg(const QVariantMap& msgMap);
     void signalDeleteTraderRspMsg(const QVariantMap& msgMap);
     void signalAddAccountRspMsg(const QVariantMap& msgMap);
     void signalDeleteAccountRspMsg(const QVariantMap& msgMap);
+    void signalReadTraderRspMsg(const QVariantMap& msgMap);
     void signalModifTraderRspMsg(const QVariantMap& msgMap);
     void signalStartConnect(unsigned short port, QString ip);
 
