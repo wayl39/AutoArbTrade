@@ -137,7 +137,7 @@ void SettingsLogic::slotOnReadyRead()
     if (!socket->isValid())
         return;
     QByteArray buffer = socket->readAll();
-//    qDebug() << __FUNCTION__ << buffer;
+    qDebug() << __FUNCTION__ << buffer;
     Protocol p;
     int len = 0;
     QVariantMap responseMap;
@@ -152,7 +152,7 @@ void SettingsLogic::slotOnReadyRead()
             emit signalResponseMsg(dataMap);
             break;
         case Protocol::settingFile:
-            qDebug() << __FUNCTION__ << dataMap;
+//            qDebug() << __FUNCTION__ << dataMap;
             emit signalSettingFile(dataMap);
             break;
         case Protocol::addTrader:

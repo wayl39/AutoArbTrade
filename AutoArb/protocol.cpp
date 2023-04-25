@@ -2,6 +2,7 @@
 #include <QJsonDocument>
 #include <cstring>
 #include <QVariant>
+#include <QDebug>
 
 /**
  * @brief 构造函数
@@ -15,7 +16,11 @@ Protocol::Protocol(Type type)
 
 void Protocol::setData(const QVariantMap &data)
 {
-    object = QJsonObject(QJsonDocument::fromJson(QJsonDocument::fromVariant(QVariant(data)).toJson()).object());
+    QJsonParseError error;
+    object = QJsonObject(QJsonDocument::fromJson(QJsonDocument::fromVariant(QVariant(data)).toJson(), &error).object());
+    if (error.error != QJsonParseError::NoError){
+        qDebug() << __FUNCTION__ << error.errorString();
+    }
 }
 
 QVariantMap Protocol::getData()
