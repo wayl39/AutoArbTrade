@@ -113,6 +113,7 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap, QVariantMap& respon
         QString fundAccount = dataMap.value(DefineFields::FundAccount).toString();
 
         QStringList cliendIdList = m_settings->childGroups();
+        qDebug() << __FUNCTION__ << cliendIdList;
         if (!cliendIdList.contains(traderId)){
             ret = MasterValues::ResponseResult::fail;
             errorInfo = "此交易员账号不存在，请联系管理员添加";
@@ -333,8 +334,8 @@ void SettingsLogic::slotOnReadyRead()
         default:
             break;
         }
-//        if (responseMap.isEmpty())
-//            continue;
+        if (responseMap.isEmpty())
+            continue;
         Protocol response(p.getType());
         response.setData(responseMap);
 //        response.pack();

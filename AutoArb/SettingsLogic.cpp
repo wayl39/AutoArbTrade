@@ -24,6 +24,7 @@ SettingsLogic::~SettingsLogic()
 
 void SettingsLogic::init()
 {
+    qDebug() << __FUNCTION__ << "子线程Id:" << QThread::currentThread();
     initSetting();
 }
 
@@ -84,6 +85,8 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap)
 
 void SettingsLogic::deleteSetting(const QVariantMap &dataMap)
 {
+    if (!m_socket->isValid())
+        return;
     if (FuncType::DeleteTrader == dataMap.value(DefineFields::funcType).toString()){
         Protocol p(Protocol::deleteTrader);
         p.setData(dataMap);
@@ -117,7 +120,7 @@ void SettingsLogic::initSetting()
 
 SettingsLogic::SettingsLogic()
 {
-    qDebug() << __FUNCTION__ << QThread::currentThread();
+
 }
 
 QSettings *SettingsLogic::getSetting() const
@@ -137,7 +140,7 @@ void SettingsLogic::slotOnReadyRead()
     if (!socket->isValid())
         return;
     QByteArray buffer = socket->readAll();
-    qDebug() << __FUNCTION__ << buffer;
+//    qDebug() << __FUNCTION__ << buffer;
     Protocol p;
     int len = 0;
     QVariantMap responseMap;

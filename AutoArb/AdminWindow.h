@@ -22,12 +22,13 @@ public slots:
 
     void slotBtnModifiClicked(const QString& clientId);
 
-    void slotBtnDeleteClicked();
-private slots:
+    void slotBtnDeleteClicked(const QString &cliendId);
+
     void slotSettingFile(const QVariantMap& dataMap);
     void slotReadTraderMsg(const QVariantMap& dataMap);
 
     void slotDeleteTraderMsg(const QVariantMap& dataMap);
+private slots:
     void slotAddTraderClicked();
     void slotDeleteTraderClicked();
     void slotAddFundClicked();

@@ -34,7 +34,9 @@ void AdminUserItem::createLayout()
 
 void AdminUserItem::createConnect()
 {
-    connect(ui->pb_delete, &QPushButton::clicked, this, &AdminUserItem::signalBtnDeleteClicked);
+    connect(ui->pb_delete, &QPushButton::clicked, this, [=]{
+        emit signalBtnDeleteClicked(m_clientId);
+    });
     connect(ui->pb_modification, &QPushButton::clicked, this, [=]{
         emit signalBtnModifiClicked(m_clientId);
     });

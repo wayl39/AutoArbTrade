@@ -31,12 +31,27 @@ void DeleteTraderWidget::slotOkBtnClicked()
     QVariantMap dataMap;
     dataMap.insert(DefineFields::funcType, FuncType::DeleteTrader);
     dataMap.insert(DefineFields::UserId, ui->lineEdit_account->text());
+    dataMap.insert(DefineFields::sender, "menu");
     SettingsLogic::GetInstance()->deleteSetting(dataMap);
-    if (!errorInfo.isEmpty()){
-        QMessageBox::critical(this, "交易员账户删除", errorInfo);
+
+
+}
+
+void DeleteTraderWidget::slotRspMsg(const QVariantMap &responseMap)
+{
+    if ("menu" != responseMap.value(DefineFields::sender).toString()){
         return;
     }
-    emit signalBtnOkClicked(ui->lineEdit_account->text());
+    QString ret = responseMap.value(MasterFileds::ret).toString();
+    QString errorInfo = responseMap.value(MasterFileds::textDescribe).toString();
+    QString trader = responseMap.value(DefineFields::UserId).toString();
+    if (MasterValues::ResponseResult::success != ret){
+        QMessageBox::critical(this, "交易员账户删除", errorInfo);
+        return;
+    }else {
+        emit signalBtnOkClicked(trader);
+    }
+
 }
 
 void DeleteTraderWidget::createWidget()
@@ -51,7 +66,7 @@ void DeleteTraderWidget::createLayout()
 
 void DeleteTraderWidget::createConnect()
 {
-
+    connect(SettingsLogic::GetInstance(), &SettingsLogic::signalDeleteTraderRspMsg, this, &DeleteTraderWidget::slotRspMsg);
 }
 
 void DeleteTraderWidget::checkUiData(QString &errorInfo)

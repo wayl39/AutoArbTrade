@@ -33,11 +33,21 @@ void DeleteAccountWidget::slotOkBtnClicked()
     dataMap.insert(DefineFields::UserId, ui->lineEdit_traderAccount->text());
     dataMap.insert(DefineFields::FundAccount, ui->lineEdit_fundAccount->text());
     SettingsLogic::GetInstance()->deleteSetting(dataMap);
-    if (!errorInfo.isEmpty()){
-        QMessageBox::critical(this, "资金账户删除", errorInfo);
-        return;
+}
+
+void DeleteAccountWidget::slotRspMsg(const QVariantMap &responseMap)
+{
+    QString ret = responseMap.value(MasterFileds::ret).toString();
+    QString errorInfo = responseMap.value(MasterFileds::textDescribe).toString();
+
+    if (MasterValues::ResponseResult::success == ret){
+        emit signalBtnOkClicked();
+    } else {
+        if (!errorInfo.isEmpty()){
+            QMessageBox::critical(this, "资金账户删除", errorInfo);
+            return;
+        }
     }
-    emit signalBtnOkClicked();
 }
 
 void DeleteAccountWidget::createWidget()
@@ -52,6 +62,7 @@ void DeleteAccountWidget::createLayout()
 
 void DeleteAccountWidget::createConnect()
 {
+    connect(SettingsLogic::GetInstance(), &SettingsLogic::signalDeleteAccountRspMsg, this, &DeleteAccountWidget::slotRspMsg);
 }
 
 void DeleteAccountWidget::checkUiData(QString &errorInfo)

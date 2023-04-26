@@ -39,6 +39,9 @@ void UserWindow::createWidget()
     ui->menubar->removeAction(ui->action_deleteStragety);
     ui->menu_strategyManager->clear();
     ui->menu_strategyManager->setTitle("");
+    ui->menu_log->clear();
+    ui->menu_log->setTitle("");
+    ui->widget_btn->hide();
 }
 
 void UserWindow::createLayout()

@@ -24,6 +24,7 @@ public:
     static const QString Ip; // = "ip";
     static const QString Port; // = "port";
     static const QString Admin; // = "Admin";
+    static const QString sender; // = "sender";
 };
 
 class FuncType : public noncopyable
@@ -44,11 +45,6 @@ class MasterFileds : public noncopyable
 public:
     static const QString ret; // = "10008";
     static const QString textDescribe; // = "58";
-
-//    static const QString DeleteTrader; // = "deleteTrader";
-//    static const QString AddFundAccount; // = "addFundAccount";
-//    static const QString DeleteFundAccount; // = "deleteFundAccount";
-//    static const QString ModifiTraderMsg; // = "modifiTraderMsg";
 };
 
 class MasterValues : public noncopyable

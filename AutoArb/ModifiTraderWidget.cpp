@@ -25,7 +25,7 @@ void ModifiTraderWidget::initUiData(const QVariantMap &dataMap)
     ui->lineEdit_account->setText(dataMap.value(DefineFields::UserId).toString());
     ui->lineEdit_password->setText(dataMap.value(DefineFields::PassWord).toString());
     ui->lineEdit_mac->setText(dataMap.value(DefineFields::Mac).toString());
-//    ui->textEdit_account->setText(dataMap.value(DefineFields::FundListStr).toStringList().join("\n"));
+    ui->textEdit_account->setText(dataMap.value(DefineFields::FundListStr).toStringList().join("\n"));
 }
 
 void ModifiTraderWidget::slotOkBtnClicked()
@@ -35,11 +35,9 @@ void ModifiTraderWidget::slotOkBtnClicked()
     msgMap.insert(DefineFields::UserId, ui->lineEdit_account->text());
     msgMap.insert(DefineFields::PassWord, ui->lineEdit_password->text());
     msgMap.insert(DefineFields::Mac, ui->lineEdit_mac->text());
-//    msgMap.insert(DefineFields::FundListStr, ui->textEdit_account->toPlainText().split("\n"));
-    qDebug() << __FUNCTION__ << ui->textEdit_account->toPlainText();
+    msgMap.insert(DefineFields::FundListStr, ui->textEdit_account->toPlainText().split("\n"));
+//    qDebug() << __FUNCTION__ << ui->textEdit_account->toPlainText();
     SettingsLogic::GetInstance()->writeSetting(msgMap);
-//    QMessageBox::critical(this, "修改交易员信息", "1111");
-//    emit signalBtnOkClicked();
 }
 
 void ModifiTraderWidget::slotPVisibleBtnClicked()
@@ -57,7 +55,7 @@ void ModifiTraderWidget::slotPVisibleBtnClicked()
 
 void ModifiTraderWidget::slotModifTraderRspMsg(const QVariantMap &dataMap)
 {
-    qDebug() << __FUNCTION__ << dataMap;
+//    qDebug() << __FUNCTION__ << dataMap;
     QString ret = dataMap.value(MasterFileds::ret).toString();
     QString errorInfo = dataMap.value(MasterFileds::textDescribe).toString();
     QString trader = dataMap.value(DefineFields::UserId).toString();

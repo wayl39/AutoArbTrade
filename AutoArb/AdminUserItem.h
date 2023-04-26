@@ -18,7 +18,7 @@ public:
     void setItemName(const QString& text);
 
 signals:
-    void signalBtnDeleteClicked();
+    void signalBtnDeleteClicked(const QString& cliendId);
 
     void signalBtnModifiClicked(const QString& cliendId);
 

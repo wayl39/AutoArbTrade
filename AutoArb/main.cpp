@@ -1,7 +1,8 @@
 #include <QApplication>
 #include "SettingsLogic.h"
+#include <QThread>
 
-#define Test 1
+#define Test 2
 
 #if Test == 1
 #include "AdminWindow.h"
@@ -15,7 +16,10 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    SettingsLogic::GetInstance()->init();   
+    QThread* t = new QThread;
+    SettingsLogic::GetInstance()->moveToThread(t);
+    t->start();
+    SettingsLogic::GetInstance()->init();
 #if Test == 1
     AdminWindow w;
     w.show();
@@ -26,5 +30,6 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 #endif
+    qDebug() << __FUNCTION__ << "主线程Id：" << QThread::currentThread();
     return a.exec();
 }

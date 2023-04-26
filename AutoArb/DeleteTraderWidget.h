@@ -21,6 +21,8 @@ signals:
 public slots:
     void slotOkBtnClicked();
 
+    void slotRspMsg(const QVariantMap &responseMap);
+
 private:
     void createWidget();
     void createLayout();

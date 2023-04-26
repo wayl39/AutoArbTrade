@@ -16,6 +16,7 @@
 #include <QMessageBox>
 #include "ModifiTraderWidget.h"
 
+static const QString SenderName = "pushButton";
 AdminWindow::AdminWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::AdminWindow)
@@ -53,16 +54,16 @@ void AdminWindow::slotDeleteTraderSuccess(const QString &cliendId)
 {
 
 //    int count = ui->listWidget_trader->count();
-    QList<QListWidgetItem*> findItems = ui->listWidget_trader->findItems(cliendId, Qt::MatchExactly);
-    qDebug() << __FUNCTION__ << cliendId << findItems.size();
-    if (findItems.isEmpty())
-        return;
-    const int length = findItems.count();
-    for (int i = 0; i < length; ++i){
-        auto item = findItems.takeFirst();
-        ui->listWidget_trader->removeItemWidget(item);
-        delete item;
-    }
+//    QList<QListWidgetItem*> findItems = ui->listWidget_trader->findItems(cliendId, Qt::MatchExactly);
+//    qDebug() << __FUNCTION__ << cliendId << findItems.size();
+//    if (findItems.isEmpty())
+//        return;
+//    const int length = findItems.count();
+//    for (int i = 0; i < length; ++i){
+//        auto item = findItems.takeFirst();
+//        ui->listWidget_trader->removeItemWidget(item);
+//        delete item;
+//    }
 
 }
 
@@ -74,23 +75,23 @@ void AdminWindow::slotBtnModifiClicked(const QString &clientId)
     SettingsLogic::GetInstance()->writeSetting(msgMap);
 }
 
-void AdminWindow::slotBtnDeleteClicked()
+void AdminWindow::slotBtnDeleteClicked(const QString &cliendId)
 {
 //    ui->listWidget_trader->findItems()
-    QListWidgetItem *item = ui->listWidget_trader->currentItem();
-    if (!item)
-        return;
+//    QListWidgetItem *item = ui->listWidget_trader->currentItem();
+//    if (!item)
+//        return;
     QVariantMap dataMap;
     dataMap.insert(DefineFields::funcType, FuncType::DeleteTrader);
-    dataMap.insert(DefineFields::UserId, item->text());
-//    QString errorInfo;
+    dataMap.insert(DefineFields::UserId, cliendId);
+    dataMap.insert(DefineFields::sender, SenderName);
     SettingsLogic::GetInstance()->deleteSetting(dataMap);
 
 }
 
 void AdminWindow::slotSettingFile(const QVariantMap &dataMap)
 {
-    qDebug() << __FUNCTION__ << dataMap;
+//    qDebug() << __FUNCTION__ << dataMap;
     QStringList cliendIdList = dataMap.keys();
     foreach(auto cliendId, cliendIdList){
         QListWidgetItem* item = new QListWidgetItem(cliendId);
@@ -124,6 +125,8 @@ void AdminWindow::slotReadTraderMsg(const QVariantMap &dataMap)
 
 void AdminWindow::slotDeleteTraderMsg(const QVariantMap &dataMap)
 {
+    if (SenderName != dataMap.value(DefineFields::sender).toString())
+        return;
     QString ret = dataMap.value(MasterFileds::ret).toString();
     if (MasterValues::ResponseResult::success != ret)
     {
@@ -132,11 +135,14 @@ void AdminWindow::slotDeleteTraderMsg(const QVariantMap &dataMap)
         return;
     }
     QString cliendId = dataMap.value(DefineFields::UserId).toString();
-    QListWidgetItem *item = ui->listWidget_trader->currentItem();
-    if (!item)
+//    QListWidgetItem *item = ui->listWidget_trader->currentItem();
+    QList<QListWidgetItem* > items = ui->listWidget_trader->findItems(cliendId, Qt::MatchExactly);
+    if (items.isEmpty())
         return;
-    ui->listWidget_trader->removeItemWidget(item);
-    delete item;
+    foreach(auto item, items){
+        ui->listWidget_trader->removeItemWidget(item);
+        delete item;
+    }
 }
 
 void AdminWindow::slotAddTraderClicked()
@@ -145,7 +151,7 @@ void AdminWindow::slotAddTraderClicked()
     AddTraderWidget widget;
     dialog.addWidget(&widget);
     connect(&dialog, &ADialog::signalBtnOkClicked, &widget, &AddTraderWidget::slotOkBtnClicked);
-//    connect(&widget, &AddTraderWidget::signalBtnOkClicked, &dialog, &ADialog::accept);
+    connect(&widget, &AddTraderWidget::signalBtnOkClicked, &dialog, &ADialog::accept);
     connect(&widget, &AddTraderWidget::signalBtnOkClicked, this, &AdminWindow::slotAddTraderSuccess);
 
     dialog.exec();
@@ -153,7 +159,7 @@ void AdminWindow::slotAddTraderClicked()
 
 void AdminWindow::slotDeleteTraderClicked()
 {
-    ADialog dialog("添加交易账号");
+    ADialog dialog("删除交易账号");
     DeleteTraderWidget widget;
     dialog.addWidget(&widget);
     connect(&dialog, &ADialog::signalBtnOkClicked, &widget, &DeleteTraderWidget::slotOkBtnClicked);
