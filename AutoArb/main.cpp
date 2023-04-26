@@ -2,7 +2,7 @@
 #include "SettingsLogic.h"
 #include <QThread>
 
-#define Test 2
+#define Test 0
 
 #if Test == 1
 #include "AdminWindow.h"
