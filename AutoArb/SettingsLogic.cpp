@@ -103,7 +103,7 @@ void SettingsLogic::initSetting()
 {
     QString fileName = QCoreApplication::applicationDirPath() + "/work/" + "config.ini";
     m_settings = new QSettings(fileName,QSettings::IniFormat, this);
-    m_settings->clear();
+//    m_settings->clear();
     // 设置管理员账号，密码
     CheckSettingValue(DefineFields::Ip, "127.0.0.1");
     CheckSettingValue(DefineFields::Port, "8989");
