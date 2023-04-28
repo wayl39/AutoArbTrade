@@ -63,6 +63,7 @@ private:
     QTcpServer* m_s{Q_NULLPTR};
 
 //    QTcpSocket* m_socket{Q_NULLPTR};
+    QMap<QTcpSocket*, QString> m_map;
 
 };
 
