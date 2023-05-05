@@ -10,6 +10,7 @@
 #include "FileSystemWatcher.h"
 #include "RecvFile.h"
 #include "protocol.h"
+#include <QDir>
 
 SettingsLogic *SettingsLogic::GetInstance()
 {
@@ -243,14 +244,19 @@ void SettingsLogic::deleteSetting(const QVariantMap &dataMap, QVariantMap &respo
 
 void SettingsLogic::initSetting()
 {
-    QString fileName = QCoreApplication::applicationDirPath() + "/work/" + "config.ini";
+    QString fileName = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/work/" + "config.ini");
     m_settings = new QSettings(fileName,QSettings::IniFormat, this);
-//    mSetting->clear();
+    QString path = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/log/");
+    QDir dir(path);
+    if (!dir.exists()){
+        dir.mkpath(path);
+    }
     // 设置管理员账号，密码
     CheckSettingValue(DefineFields::Admin_Account, "Admin");
     CheckSettingValue(DefineFields::Admin_Password, "123456");
     CheckSettingValue(DefineFields::Ip, "127.0.0.1");
     CheckSettingValue(DefineFields::Port, "8989");
+    CheckSettingValue(DefineFields::Path, path);
 
     m_s = new QTcpServer(this);
     unsigned short port = m_settings->value(DefineFields::Port).toString().toUShort();
@@ -265,17 +271,6 @@ void SettingsLogic::initSetting()
 
         /** @note 2. 管理套接字的断开 */
         connect(tcp, &QTcpSocket::disconnected, this, &SettingsLogic::slotDisconnected);
-
-//        // 创建子线程
-//        RecvFile* subThread = new RecvFile(tcp);
-//        subThread->start();
-
-//        connect(subThread, &RecvFile::over, this, [=]{
-//            subThread->exit();
-//            subThread->wait();
-//            subThread->deleteLater();
-////            QMessageBox::information(this, "文件接收", "文件接收完成");
-//        });
 
     });
 }
@@ -313,10 +308,15 @@ void SettingsLogic::slotOnReadyRead()
             break;
         case Protocol::login:
             logProcFunc(dataMap, responseMap);
-//            if (MasterValues::ResponseResult::success == responseMap.value(MasterFileds::ret).toString()
-//                    && getSettingValue(DefineFields::Admin_Account).toString() == dataMap.value(DefineFields::UserId).toString()){
-//                sendFileMsg(socket);
-//            }
+            if (MasterValues::ResponseResult::success == responseMap.value(MasterFileds::ret).toString()
+                    && getSettingValue(DefineFields::Admin_Account).toString() != dataMap.value(DefineFields::UserId).toString()){
+                m_map.insert(socket, dataMap.value(DefineFields::UserId).toString());
+                m_settings->beginGroup(dataMap.value(DefineFields::UserId).toString());
+                CheckSettingValue(DefineFields::Path+dataMap.value(DefineFields::UserId).toString(), getSettingValue(DefineFields::UserId).toString());
+                QString fileName = m_settings->value(DefineFields::Path+dataMap.value(DefineFields::UserId).toString()).toString();
+                m_settings->endGroup();
+
+            }
             break;
         case Protocol::settingFile:
             sendFileMsg(socket);
@@ -347,6 +347,8 @@ void SettingsLogic::slotOnReadyRead()
 void SettingsLogic::slotDisconnected()
 {
     QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
+    if (m_map.contains(socket))
+        m_map.remove(socket);
     socket->close();
     socket->deleteLater();
 }

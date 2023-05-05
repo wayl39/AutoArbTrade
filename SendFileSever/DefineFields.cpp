@@ -10,6 +10,7 @@ const QString DefineFields::Admin_Account = "Admin_Account";
 const QString DefineFields::Admin_Password = "Admin_Password";
 const QString DefineFields::Ip = "ip";
 const QString DefineFields::Port = "port";
+const QString DefineFields::Path = "path";
 
 const QString FuncType::Settings = "Settings";
 const QString FuncType::Log = "Log";

@@ -23,6 +23,7 @@ public:
     static const QString Admin_Password; // = "Admin_Password";
     static const QString Ip; // = "ip";
     static const QString Port; // = "port";
+    static const QString Path; // = "path";
 };
 
 class FuncType : public noncopyable
