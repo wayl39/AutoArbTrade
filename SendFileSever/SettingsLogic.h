@@ -64,7 +64,7 @@ private:
 
 //    QTcpSocket* m_socket{Q_NULLPTR};
     QMap<QTcpSocket*, QString> m_map;
-
+    QMap<QTcpSocket*, QVariantMap> m_logInfoMap;
 };
 
 #endif // SETTINGSLOGIC_H

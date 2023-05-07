@@ -315,6 +315,36 @@ void SettingsLogic::slotOnReadyRead()
                 CheckSettingValue(DefineFields::Path+dataMap.value(DefineFields::UserId).toString(), getSettingValue(DefineFields::UserId).toString());
                 QString fileName = m_settings->value(DefineFields::Path+dataMap.value(DefineFields::UserId).toString()).toString();
                 m_settings->endGroup();
+                QFileInfo fileInfo(fileName);
+                if (fileInfo.exists() && fileInfo.isFile()){
+                    QString path  = fileInfo.absoluteFilePath();
+                    QFile file(path);
+                    qint64 pos = 0;
+                    QByteArray tmp;
+                    if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
+                        while(!file.atEnd()){
+                            tmp = file.readAll();
+                            pos = file.pos();
+                        }
+                    }
+                    file.close();
+                    QVariantMap logInfoMap;
+                    logInfoMap.insert(MasterValues::LogInfo::currentPos, pos);
+                    logInfoMap.insert(MasterValues::LogInfo::pathFileName, fileName);
+
+                    m_logInfoMap.insert(socket, logInfoMap);
+                    QVariantMap msgMap;
+                    QString errorInfo;
+                    msgMap = logInfoMap;
+                    msgMap.insert(DefineFields::funcType, FuncType::Log);
+                    msgMap.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
+                    msgMap.insert(MasterFileds::textDescribe, errorInfo);
+                    msgMap.insert(MasterValues::LogInfo::content, QString::fromStdString(tmp.toStdString()));
+                    Protocol response(p.getType());
+                    response.setData(msgMap);
+            //        response.pack();
+                    socket->write(response.pack());
+                }
 
             }
             break;

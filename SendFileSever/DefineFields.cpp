@@ -27,3 +27,11 @@ const QString MasterFileds::textDescribe = "58";
 const QString MasterValues::ResponseResult::success = "0";
 const QString MasterValues::ResponseResult::fail = "1";
 const QString MasterValues::ResponseResult::timeOut = "2";
+
+const QString MasterValues::LogInfo::beginRow = "10001";
+const QString MasterValues::LogInfo::endRow = "10002";
+const QString MasterValues::LogInfo::totalRow = "10003";
+const QString MasterValues::LogInfo::currentPos= "10004";
+const QString MasterValues::LogInfo::pathFileName= "10005";
+const QString MasterValues::LogInfo::content = "10006";
+
