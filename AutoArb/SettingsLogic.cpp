@@ -80,6 +80,10 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap)
         Protocol p(Protocol::readTraderMsg);
         p.setData(dataMap);
         m_socket->write(p.pack());
+    } else if (FuncType::Log == dataMap.value(DefineFields::funcType).toString()){
+        Protocol p(Protocol::log);
+        p.setData(dataMap);
+        m_socket->write(p.pack());
     }
 }
 
@@ -177,6 +181,9 @@ void SettingsLogic::slotOnReadyRead()
             break;
         case Protocol::modifiTraderMsg:
             emit signalModifTraderRspMsg(dataMap);
+            break;
+        case Protocol::log:
+            emit signalLogRspMsg(dataMap);
             break;
         default:
             break;

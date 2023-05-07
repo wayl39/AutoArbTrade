@@ -55,6 +55,8 @@ private:
 
     void sendFileMsg(QTcpSocket *socket);
 
+    void procLogFile(QTcpSocket *socket, const QVariantMap& dataMap, QVariantMap &responseMap);
+
 private:
     SettingsLogic();
 

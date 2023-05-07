@@ -45,6 +45,7 @@ signals:
     void signalReadTraderRspMsg(const QVariantMap& msgMap);
     void signalModifTraderRspMsg(const QVariantMap& msgMap);
     void signalStartConnect(unsigned short port, QString ip);
+    void signalLogRspMsg(const QVariantMap& msgMap);
 
     void sendFile(QString path);
 

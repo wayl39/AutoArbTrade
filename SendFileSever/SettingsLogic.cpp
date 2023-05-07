@@ -310,41 +310,6 @@ void SettingsLogic::slotOnReadyRead()
             logProcFunc(dataMap, responseMap);
             if (MasterValues::ResponseResult::success == responseMap.value(MasterFileds::ret).toString()
                     && getSettingValue(DefineFields::Admin_Account).toString() != dataMap.value(DefineFields::UserId).toString()){
-                m_map.insert(socket, dataMap.value(DefineFields::UserId).toString());
-                m_settings->beginGroup(dataMap.value(DefineFields::UserId).toString());
-                CheckSettingValue(DefineFields::Path+dataMap.value(DefineFields::UserId).toString(), getSettingValue(DefineFields::UserId).toString());
-                QString fileName = m_settings->value(DefineFields::Path+dataMap.value(DefineFields::UserId).toString()).toString();
-                m_settings->endGroup();
-                QFileInfo fileInfo(fileName);
-                if (fileInfo.exists() && fileInfo.isFile()){
-                    QString path  = fileInfo.absoluteFilePath();
-                    QFile file(path);
-                    qint64 pos = 0;
-                    QByteArray tmp;
-                    if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
-                        while(!file.atEnd()){
-                            tmp = file.readAll();
-                            pos = file.pos();
-                        }
-                    }
-                    file.close();
-                    QVariantMap logInfoMap;
-                    logInfoMap.insert(MasterValues::LogInfo::currentPos, pos);
-                    logInfoMap.insert(MasterValues::LogInfo::pathFileName, fileName);
-
-                    m_logInfoMap.insert(socket, logInfoMap);
-                    QVariantMap msgMap;
-                    QString errorInfo;
-                    msgMap = logInfoMap;
-                    msgMap.insert(DefineFields::funcType, FuncType::Log);
-                    msgMap.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
-                    msgMap.insert(MasterFileds::textDescribe, errorInfo);
-                    msgMap.insert(MasterValues::LogInfo::content, QString::fromStdString(tmp.toStdString()));
-                    Protocol response(p.getType());
-                    response.setData(msgMap);
-            //        response.pack();
-                    socket->write(response.pack());
-                }
 
             }
             break;
@@ -360,6 +325,9 @@ void SettingsLogic::slotOnReadyRead()
         case Protocol::deleteTrader:
         case Protocol::deleteAccount:
             deleteSetting(dataMap, responseMap);
+            break;
+        case Protocol::log:
+            procLogFile(socket, dataMap, responseMap);
             break;
         default:
             break;
@@ -432,4 +400,38 @@ void SettingsLogic::sendFileMsg(QTcpSocket* socket)
 
     QString filePath = m_settings->fileName();
     emit signalSendFile(filePath);
+}
+
+void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, QVariantMap &responseMap)
+{
+    m_map.insert(socket, dataMap.value(DefineFields::UserId).toString());
+    m_settings->beginGroup(dataMap.value(DefineFields::UserId).toString());
+    CheckSettingValue(DefineFields::Path+dataMap.value(DefineFields::UserId).toString(), getSettingValue(DefineFields::UserId).toString());
+    QString fileName = m_settings->value(DefineFields::Path+dataMap.value(DefineFields::UserId).toString()).toString();
+    m_settings->endGroup();
+    QFileInfo fileInfo(fileName);
+    if (fileInfo.exists() && fileInfo.isFile()){
+        QString path  = fileInfo.absoluteFilePath();
+        QFile file(path);
+        qint64 pos = 0;
+        QByteArray tmp;
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
+            while(!file.atEnd()){
+                tmp = file.readAll();
+                pos = file.pos();
+            }
+        }
+        file.close();
+        QVariantMap logInfoMap;
+        logInfoMap.insert(MasterValues::LogInfo::currentPos, pos);
+        logInfoMap.insert(MasterValues::LogInfo::pathFileName, fileName);
+
+        m_logInfoMap.insert(socket, logInfoMap);
+        QString errorInfo;
+        responseMap = logInfoMap;
+        responseMap.insert(DefineFields::funcType, FuncType::Log);
+        responseMap.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
+        responseMap.insert(MasterFileds::textDescribe, errorInfo);
+        responseMap.insert(MasterValues::LogInfo::content, QString::fromStdString(tmp.toStdString()));
+    }
 }

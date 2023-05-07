@@ -22,6 +22,8 @@ public:
     QString clientId() const;
     void setClientId(const QString &clientId);
 
+    void requestLog();
+
     QString getFilePath() const;
     void setFilePath(const QString &filePath);
 
@@ -33,6 +35,8 @@ public slots:
     void slotAddRiskClicked();
 
     void slotDeleteRiskClicked();
+
+    void slotLogRspMsg(const QVariantMap& dataMap);
 private slots:
     void slotTimeOut();
 private:
@@ -41,6 +45,7 @@ private:
     void createConncet();
 
     void getFileLog();
+
 private:
     Ui::UserWindow *ui;
     QString m_clientId;

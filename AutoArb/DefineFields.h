@@ -58,6 +58,16 @@ public:
         static const QString timeOut; // = "2";
     };
 
+    class LogInfo: public noncopyable{
+    public:
+        static const QString beginRow; // = "10001";
+        static const QString endRow; // = "10002";
+        static const QString totalRow; // = "10003";
+        static const QString currentPos; // = "10004";
+        static const QString pathFileName; // = "10005";
+        static const QString content; // = "10006";
+    };
+
 };
 
 #endif // DEFINEFIELDS_H

@@ -31,6 +31,7 @@ void MainWindow::slotLogSuccess(const QString &cliendId)
         close();
         UserWindow *userWidget = new UserWindow;
         userWidget->setClientId(cliendId);
+        userWidget->requestLog();
         userWidget->show();
 
     }

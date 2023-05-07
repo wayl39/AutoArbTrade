@@ -18,6 +18,8 @@ UserWindow::UserWindow(QWidget *parent) :
     createWidget();
     createLayout();
     createConncet();
+
+//    requestLog();
 }
 
 UserWindow::~UserWindow()
@@ -58,6 +60,8 @@ void UserWindow::createConncet()
     connect(ui->pb_dir, &QPushButton::clicked, this, [=]{
         getFileLog();
     });
+
+    connect(SettingsLogic::GetInstance(), &SettingsLogic::signalLogRspMsg, this, &UserWindow::slotLogRspMsg);
 }
 
 void UserWindow::getFileLog()
@@ -108,6 +112,14 @@ void UserWindow::getFileLog()
 
 }
 
+void UserWindow::requestLog()
+{
+    QVariantMap msgMap;
+    msgMap.insert(DefineFields::funcType, FuncType::Log);
+    msgMap.insert(DefineFields::UserId, m_clientId);
+    SettingsLogic::GetInstance()->writeSetting(msgMap);
+}
+
 QString UserWindow::getFilePath() const
 {
     return m_filePath;
@@ -146,6 +158,14 @@ void UserWindow::slotAddRiskClicked()
 void UserWindow::slotDeleteRiskClicked()
 {
 
+}
+
+void UserWindow::slotLogRspMsg(const QVariantMap &dataMap)
+{
+    if (MasterValues::ResponseResult::success == dataMap.value(MasterFileds::ret).toString()){
+        QString text = dataMap.value(MasterValues::LogInfo::content).toString();
+        ui->textBrowser_log->append(text);
+    }
 }
 
 void UserWindow::slotTimeOut()
