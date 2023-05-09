@@ -11,6 +11,7 @@
 #include "RecvFile.h"
 #include "protocol.h"
 #include <QDir>
+#include <QFileInfo>
 
 SettingsLogic *SettingsLogic::GetInstance()
 {
@@ -246,10 +247,7 @@ void SettingsLogic::initSetting()
     m_settings = new QSettings(fileName,QSettings::IniFormat, this);
     m_settings->setAtomicSyncRequired(false);
     FileSystemWatcher::pInstance()->addWatchPath(fileName);
-    connect(FileSystemWatcher::pInstance(), &FileSystemWatcher::signalFileChange, this, [=](QString fileName){
-//        qDebug() << "1111" << fileName;
-        m_settings->sync();
-    });
+    connect(FileSystemWatcher::pInstance(), &FileSystemWatcher::signalFileChange, this, &SettingsLogic::slotWatcherFileChanged);
     QString path = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/log/");
     QDir dir(path);
     if (!dir.exists()){
@@ -360,6 +358,13 @@ void SettingsLogic::slotSendSettingFileEnd(const QVariantMap &dataMap)
 
 }
 
+void SettingsLogic::slotWatcherFileChanged(const QString &fileName)
+{
+    if (fileName == m_settings->fileName()){
+        m_settings->sync();
+    }
+}
+
 bool SettingsLogic::CheckSettingValue(const QString &key, const QVariant &defaultValue)
 {
     QVariant varValue = m_settings->value(key);
@@ -438,6 +443,39 @@ void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, 
         responseMap.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
         responseMap.insert(MasterFileds::textDescribe, errorInfo);
         responseMap.insert(MasterValues::LogInfo::content, QString::fromStdString(tmp.toStdString()));
+    }
+}
+
+void SettingsLogic::procLogFileChange()
+{
+    QString path = m_settings->value(DefineFields::Path).toString();
+    qDebug() << __FUNCTION__ << path;
+    if (path.isEmpty())
+        return;
+    QDir dir(path);
+    QString filePath = dir.fromNativeSeparators(path);
+    dir.setFilter(QDir::Files);
+    dir.setSorting(QDir::Time);
+    QStringList fileList = dir.entryList();
+    QStringList dirFileList;
+    foreach(auto fileName, fileList){
+        dirFileList.append(QDir::fromNativeSeparators(filePath + "/" + fileName));
+    }
+    if (!dirFileList.isEmpty()){
+        QString fileName = dirFileList.first();
+        QFile* logFile = new QFile(fileName, this);
+        QFileInfo fileInfo(*logFile);
+        if (!logFile->open(QIODevice::ReadOnly| QIODevice::Text))
+            return;
+
+        QTextStream ts(logFile);
+        QString text = ts.readAll();
+        logFile->close();
+
+        FileSystemWatcher::pInstance()->addWatchPath(fileName);
+//        m_timer = new QTimer(this);
+//        m_timer->start(5 * 1000);
+//        connect(m_timer, &QTimer::timeout, this, &UserWindow::slotTimeOut);
     }
 }
 

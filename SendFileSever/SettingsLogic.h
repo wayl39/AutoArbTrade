@@ -42,6 +42,8 @@ public slots:
 
     void slotSendSettingFileEnd(const QVariantMap& dataMap);
 
+    void slotWatcherFileChanged(const QString& fileName);
+
 signals:
     void signalStartConnect(unsigned short port, QString ip);
 
@@ -56,6 +58,8 @@ private:
     void sendFileMsg(QTcpSocket *socket);
 
     void procLogFile(QTcpSocket *socket, const QVariantMap& dataMap, QVariantMap &responseMap);
+
+    void procLogFileChange();
 
     QVariantMap getAllSettings();
 
