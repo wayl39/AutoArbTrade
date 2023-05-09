@@ -473,6 +473,7 @@ void SettingsLogic::procLogFileChange()
         logFile->close();
 
         FileSystemWatcher::pInstance()->addWatchPath(fileName);
+
 //        m_timer = new QTimer(this);
 //        m_timer->start(5 * 1000);
 //        connect(m_timer, &QTimer::timeout, this, &UserWindow::slotTimeOut);
