@@ -57,6 +57,8 @@ private:
 
     void procLogFile(QTcpSocket *socket, const QVariantMap& dataMap, QVariantMap &responseMap);
 
+    QVariantMap getAllSettings();
+
 private:
     SettingsLogic();
 

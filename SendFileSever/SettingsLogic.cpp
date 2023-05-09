@@ -27,9 +27,6 @@ SettingsLogic::~SettingsLogic()
 void SettingsLogic::init()
 {
     initSetting();
-
-//    FileSystemWatcher::pInstance()->addWatchPath(filePath);
-//    connect(FileSystemWatcher::pInstance(), &FileSystemWatcher::signalFileChange, this, &SettingsLogic::sendFile);
 }
 
 void SettingsLogic::uninit()
@@ -68,8 +65,9 @@ void SettingsLogic::logProcFunc(const QVariantMap &dataMap, QVariantMap& respons
     if (macAddress != m_settings->value(DefineFields::Mac).toString()){
         ret = MasterValues::ResponseResult::fail;
         errorInfo = "MAC填写错误";
-    }
+    }    
     m_settings->endGroup();
+//    qDebug() << __FUNCTION__ << macAddress << getAllSettings();
     if (errorInfo.isEmpty()){
         ret = MasterValues::ResponseResult::success;
     }
@@ -114,7 +112,7 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap, QVariantMap& respon
         QString fundAccount = dataMap.value(DefineFields::FundAccount).toString();
 
         QStringList cliendIdList = m_settings->childGroups();
-        qDebug() << __FUNCTION__ << cliendIdList;
+//        qDebug() << __FUNCTION__ << cliendIdList;
         if (!cliendIdList.contains(traderId)){
             ret = MasterValues::ResponseResult::fail;
             errorInfo = "此交易员账号不存在，请联系管理员添加";
@@ -246,6 +244,12 @@ void SettingsLogic::initSetting()
 {
     QString fileName = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/work/" + "config.ini");
     m_settings = new QSettings(fileName,QSettings::IniFormat, this);
+    m_settings->setAtomicSyncRequired(false);
+    FileSystemWatcher::pInstance()->addWatchPath(fileName);
+    connect(FileSystemWatcher::pInstance(), &FileSystemWatcher::signalFileChange, this, [=](QString fileName){
+//        qDebug() << "1111" << fileName;
+        m_settings->sync();
+    });
     QString path = QDir::toNativeSeparators(QCoreApplication::applicationDirPath() + "/log/");
     QDir dir(path);
     if (!dir.exists()){
@@ -413,7 +417,7 @@ void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, 
     if (fileInfo.exists() && fileInfo.isFile()){
         QString path  = fileInfo.absoluteFilePath();
         QFile file(path);
-        qint64 pos = 0;
+        qint64 pos = 100;
         QByteArray tmp;
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
             while(!file.atEnd()){
@@ -421,6 +425,7 @@ void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, 
                 pos = file.pos();
             }
         }
+        qDebug() << __FUNCTION__ << pos;
         file.close();
         QVariantMap logInfoMap;
         logInfoMap.insert(MasterValues::LogInfo::currentPos, pos);
@@ -434,4 +439,14 @@ void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, 
         responseMap.insert(MasterFileds::textDescribe, errorInfo);
         responseMap.insert(MasterValues::LogInfo::content, QString::fromStdString(tmp.toStdString()));
     }
+}
+
+QVariantMap SettingsLogic::getAllSettings()
+{
+    QVariantMap msgMap;
+    QStringList allKeys = m_settings->allKeys();
+    foreach(auto key, allKeys){
+        msgMap.insert(key, m_settings->value(key));
+    }
+    return msgMap;
 }
