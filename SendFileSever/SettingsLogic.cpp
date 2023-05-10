@@ -362,6 +362,16 @@ void SettingsLogic::slotWatcherFileChanged(const QString &fileName)
 {
     if (fileName == m_settings->fileName()){
         m_settings->sync();
+        return;
+    }
+
+    if (m_dicFile.contains(fileName)){
+        QSet<QTcpSocket*> socketSet = m_dicFile.value(fileName);
+        QVariantMap dataMap;
+        foreach(auto socket, socketSet){
+            dataMap = m_logInfoMap.value(socket);
+            procLogFileChange(socket, dataMap);
+        }
     }
 }
 
@@ -385,12 +395,6 @@ void SettingsLogic::sendFileMsg(QTcpSocket* socket)
 
     work->moveToThread(t);
 
-//    connect(this, &SettingsLogic::signalStartConnect, work, &SendFile::connectServer);
-
-//    connect(work, &SendFile::signalConnectOk, this, [=]{
-//        qDebug() << __FUNCTION__ << "成功连接服务器";
-//    });
-
     connect(work, &SendFile::signalEnd, this, [=](const QVariantMap& dataMap){
         Protocol p(Protocol::settingFile);
         p.setData(dataMap);
@@ -413,46 +417,19 @@ void SettingsLogic::sendFileMsg(QTcpSocket* socket)
 
 void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, QVariantMap &responseMap)
 {
+    QString userId = dataMap.value(DefineFields::UserId).toString();
+    QString key = DefineFields::Path+dataMap.value(DefineFields::UserId).toString();
+    QString generalPath = m_settings->value(DefineFields::Path).toString();
     m_map.insert(socket, dataMap.value(DefineFields::UserId).toString());
     m_settings->beginGroup(dataMap.value(DefineFields::UserId).toString());
-    CheckSettingValue(DefineFields::Path+dataMap.value(DefineFields::UserId).toString(), getSettingValue(DefineFields::UserId).toString());
-    QString fileName = m_settings->value(DefineFields::Path+dataMap.value(DefineFields::UserId).toString()).toString();
+    CheckSettingValue(key, generalPath);
+    QString path = m_settings->value(key).toString();
     m_settings->endGroup();
-    QFileInfo fileInfo(fileName);
-    if (fileInfo.exists() && fileInfo.isFile()){
-        QString path  = fileInfo.absoluteFilePath();
-        QFile file(path);
-        qint64 pos = 100;
-        QByteArray tmp;
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
-            while(!file.atEnd()){
-                tmp = file.readAll();
-                pos = file.pos();
-            }
-        }
-        qDebug() << __FUNCTION__ << pos;
-        file.close();
-        QVariantMap logInfoMap;
-        logInfoMap.insert(MasterValues::LogInfo::currentPos, pos);
-        logInfoMap.insert(MasterValues::LogInfo::pathFileName, fileName);
-
-        m_logInfoMap.insert(socket, logInfoMap);
-        QString errorInfo;
-        responseMap = logInfoMap;
-        responseMap.insert(DefineFields::funcType, FuncType::Log);
-        responseMap.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
-        responseMap.insert(MasterFileds::textDescribe, errorInfo);
-        responseMap.insert(MasterValues::LogInfo::content, QString::fromStdString(tmp.toStdString()));
-    }
-}
-
-void SettingsLogic::procLogFileChange()
-{
-    QString path = m_settings->value(DefineFields::Path).toString();
-    qDebug() << __FUNCTION__ << path;
-    if (path.isEmpty())
-        return;
     QDir dir(path);
+    if (!dir.exists()){
+        qDebug() << __FUNCTION__ << path << "此路径不存在";
+        return;
+    }
     QString filePath = dir.fromNativeSeparators(path);
     dir.setFilter(QDir::Files);
     dir.setSorting(QDir::Time);
@@ -461,21 +438,107 @@ void SettingsLogic::procLogFileChange()
     foreach(auto fileName, fileList){
         dirFileList.append(QDir::fromNativeSeparators(filePath + "/" + fileName));
     }
+    if (dirFileList.isEmpty()){
+        qDebug() << __FUNCTION__ << path << "此路径不存在文件或文件夹";
+        return;
+    }
     if (!dirFileList.isEmpty()){
         QString fileName = dirFileList.first();
-        QFile* logFile = new QFile(fileName, this);
-        QFileInfo fileInfo(*logFile);
-        if (!logFile->open(QIODevice::ReadOnly| QIODevice::Text))
+        QFile logFile(fileName);
+        if (!logFile.exists()){
+            qDebug() << __FUNCTION__ << fileName << "此路径下文件不存在";
             return;
+        }
+        QFileInfo fileInfo(logFile);
+        if (fileInfo.exists() && fileInfo.isFile()){
+            qint64 pos = 0;
+            QByteArray tmp;
+            if (logFile.open(QIODevice::ReadOnly | QIODevice::Text)){
+                while(!logFile.atEnd()){
+                    tmp = logFile.readAll();
+                    pos = logFile.pos();
+                }
+                logFile.close();
+            }
+            qDebug() << __FUNCTION__ << pos;
 
-        QTextStream ts(logFile);
+            QVariantMap logInfoMap;
+            logInfoMap.insert(MasterValues::LogInfo::currentPos, pos);
+            logInfoMap.insert(MasterValues::LogInfo::pathFileName, fileName);
+            logInfoMap.insert(MasterValues::LogInfo::key, userId+"/" + key);
+            logInfoMap.insert(DefineFields::UserId, userId);
+            logInfoMap.insert(DefineFields::Path, path);
+
+            m_logInfoMap.insert(socket, logInfoMap);
+
+            QString errorInfo;
+            responseMap = logInfoMap;
+            responseMap.insert(DefineFields::funcType, FuncType::Log);
+            responseMap.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
+            responseMap.insert(MasterFileds::textDescribe, errorInfo);
+            responseMap.insert(MasterValues::LogInfo::content, QString::fromStdString(tmp.toStdString()));
+            FileSystemWatcher::pInstance()->addWatchPath(fileName);
+//            QSet<QTcpSocket*> set;
+//            set.insert(socket);
+            m_dicFile[fileName].insert(socket);
+        }
+    }
+}
+
+void SettingsLogic::procLogFileChange(QTcpSocket* socket, const QVariantMap &dataMap)
+{
+    QString path = dataMap.value(DefineFields::Path).toString();
+    qDebug() << __FUNCTION__ << path;
+    QDir dir(path);
+    if (!dir.exists()){
+        qDebug() << __FUNCTION__ << path << "此路径不存在";
+        return;
+    }
+
+    QString filePath = dir.fromNativeSeparators(path);
+    dir.setFilter(QDir::Files);
+    dir.setSorting(QDir::Time);
+    QStringList fileList = dir.entryList();
+    QStringList dirFileList;
+    foreach(auto fileName, fileList){
+        dirFileList.append(QDir::fromNativeSeparators(filePath + "/" + fileName));
+    }
+    if (dirFileList.isEmpty()){
+        qDebug() << __FUNCTION__ << path << "此路径不存在文件或文件夹";
+        return;
+    }
+    if (!dirFileList.isEmpty()){
+        QString fileName = dirFileList.first();
+        qint64 pos = 0;
+        if (fileName == dataMap.value(MasterValues::LogInfo::pathFileName).toString()){
+            pos = dataMap.value(MasterValues::LogInfo::currentPos).toLongLong();
+        }
+        QFile logFile(fileName);
+        if (!logFile.exists()){
+            qDebug() << __FUNCTION__ << fileName << "此路径下文件不存在";
+            return;
+        }
+        QFileInfo fileInfo(logFile);
+        if (!logFile.open(QIODevice::ReadOnly| QIODevice::Text)){
+            qDebug() << __FUNCTION__ << fileName << "此路径下文件打开失败";
+            return;
+        }
+        QTextStream ts(&logFile);
+        ts.seek(pos);
         QString text = ts.readAll();
-        logFile->close();
+        logFile.close();
 
-        FileSystemWatcher::pInstance()->addWatchPath(fileName);
-//        m_timer = new QTimer(this);
-//        m_timer->start(5 * 1000);
-//        connect(m_timer, &QTimer::timeout, this, &UserWindow::slotTimeOut);
+        QVariantMap responseMap;
+        QString errorInfo;
+        responseMap = dataMap;
+        responseMap.insert(DefineFields::funcType, FuncType::Log);
+        responseMap.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
+        responseMap.insert(MasterFileds::textDescribe, errorInfo);
+        responseMap.insert(MasterValues::LogInfo::content, text);
+
+        Protocol response(Protocol::Type::log);
+        response.setData(responseMap);
+        socket->write(response.pack());
     }
 }
 

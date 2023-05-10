@@ -44,11 +44,6 @@ class MasterFileds : public noncopyable
 public:
     static const QString ret; // = "10008";
     static const QString textDescribe; // = "58";
-
-//    static const QString DeleteTrader; // = "deleteTrader";
-//    static const QString AddFundAccount; // = "addFundAccount";
-//    static const QString DeleteFundAccount; // = "deleteFundAccount";
-//    static const QString ModifiTraderMsg; // = "modifiTraderMsg";
 };
 
 class MasterValues : public noncopyable
@@ -70,6 +65,7 @@ public:
         static const QString currentPos; // = "10004";
         static const QString pathFileName; // = "10005";
         static const QString content; // = "10006";
+        static const QString key; // = "10007";
     };
 
 };

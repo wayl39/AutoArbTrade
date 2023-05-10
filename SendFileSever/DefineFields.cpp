@@ -34,4 +34,5 @@ const QString MasterValues::LogInfo::totalRow = "10003";
 const QString MasterValues::LogInfo::currentPos= "10004";
 const QString MasterValues::LogInfo::pathFileName= "10005";
 const QString MasterValues::LogInfo::content = "10006";
+const QString MasterValues::LogInfo::key = "10007";
 

@@ -59,7 +59,7 @@ private:
 
     void procLogFile(QTcpSocket *socket, const QVariantMap& dataMap, QVariantMap &responseMap);
 
-    void procLogFileChange();
+    void procLogFileChange(QTcpSocket* socket, const QVariantMap &dataMap);
 
     QVariantMap getAllSettings();
 
@@ -73,6 +73,7 @@ private:
 //    QTcpSocket* m_socket{Q_NULLPTR};
     QMap<QTcpSocket*, QString> m_map;
     QMap<QTcpSocket*, QVariantMap> m_logInfoMap;
+    QMap<QString, QSet<QTcpSocket*>> m_dicFile;
 };
 
 #endif // SETTINGSLOGIC_H
