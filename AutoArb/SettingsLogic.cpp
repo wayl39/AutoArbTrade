@@ -139,7 +139,7 @@ void SettingsLogic::setSetting(QSettings *setting)
 
 void SettingsLogic::slotOnReadyRead()
 {
-    qDebug() << __FUNCTION__;
+//    qDebug() << __FUNCTION__;
     QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
     if (!socket->isValid())
         return;

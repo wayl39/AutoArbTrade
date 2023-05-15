@@ -31,6 +31,7 @@ class FuncType : public noncopyable
 {
 public:
     static const QString Settings; // = "Settings";
+    static const QString Login; // = "Login";
     static const QString Log; // = "Log";
     static const QString AddTrader; // = "addTrader";
     static const QString DeleteTrader; // = "deleteTrader";

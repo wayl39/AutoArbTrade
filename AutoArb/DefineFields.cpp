@@ -14,6 +14,7 @@ const QString DefineFields::Admin = "Admin";
 const QString DefineFields::sender = "sender";
 
 const QString FuncType::Settings = "Settings";
+const QString FuncType::Login = "Login";
 const QString FuncType::Log = "Log";
 const QString FuncType::AddTrader = "addTrader";
 const QString FuncType::DeleteTrader = "deleteTrader";

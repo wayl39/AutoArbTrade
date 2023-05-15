@@ -11,6 +11,13 @@
 
 class QSettings;
 
+class FileRowItem{
+public:
+    qint64 startPos = 0;
+    QByteArray content;
+    qint64 endPos = 0;
+};
+
 class SettingsLogic : public QObject
 {
     Q_OBJECT
@@ -71,7 +78,7 @@ private:
     QTcpServer* m_s{Q_NULLPTR};
 
 //    QTcpSocket* m_socket{Q_NULLPTR};
-    QMap<QTcpSocket*, QString> m_map;
+//    QMap<QTcpSocket*, QString> m_map;
     QMap<QTcpSocket*, QVariantMap> m_logInfoMap;
     QMap<QString, QSet<QTcpSocket*>> m_dicFile;
 };

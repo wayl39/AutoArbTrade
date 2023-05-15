@@ -77,7 +77,7 @@ void FileSystemWatcher::fileUpdated(const QString &path)
     QString strName = file.fileName();
 
     qDebug() << __FUNCTION__ << QString("The file %1 at path %2 is updated").arg(strName).arg(strPath);
-    emit signalFileChange(path);
+    emit signalFileChange(file.absoluteFilePath());
 }
 
 FileSystemWatcher::FileSystemWatcher(QObject *parent) : QObject(parent)

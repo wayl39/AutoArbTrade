@@ -13,6 +13,8 @@
 #include <QDir>
 #include <QFileInfo>
 
+static int MaxRow = 50;
+
 SettingsLogic *SettingsLogic::GetInstance()
 {
 //    qDebug() << "服务器主线程：" << QThread::currentThread();
@@ -55,18 +57,24 @@ void SettingsLogic::logProcFunc(const QVariantMap &dataMap, QVariantMap& respons
         errorInfo = "没有此交易员账号，联系管理员添加";
     }
     m_settings->beginGroup(username);
-    if (username != m_settings->value(DefineFields::UserId).toString()){
-        ret = MasterValues::ResponseResult::fail;
-        errorInfo = "账户填写错误";
-    }
-    if (password != m_settings->value(DefineFields::PassWord).toString()){
-        ret = MasterValues::ResponseResult::fail;
-        errorInfo = "密码填写错误";
-    }
-    if (macAddress != m_settings->value(DefineFields::Mac).toString()){
-        ret = MasterValues::ResponseResult::fail;
-        errorInfo = "MAC填写错误";
-    }    
+    do {
+        if (username != m_settings->value(DefineFields::UserId).toString()){
+            ret = MasterValues::ResponseResult::fail;
+            errorInfo = "账户填写错误";
+            break;
+        }
+        if (password != m_settings->value(DefineFields::PassWord).toString()){
+            ret = MasterValues::ResponseResult::fail;
+            errorInfo = "密码填写错误";
+            break;
+        }
+        if (macAddress != m_settings->value(DefineFields::Mac).toString()){
+            ret = MasterValues::ResponseResult::fail;
+            errorInfo = "MAC填写错误";
+            break;
+        }
+    }while(0);
+
     m_settings->endGroup();
 //    qDebug() << __FUNCTION__ << macAddress << getAllSettings();
     if (errorInfo.isEmpty()){
@@ -310,10 +318,10 @@ void SettingsLogic::slotOnReadyRead()
             break;
         case Protocol::login:
             logProcFunc(dataMap, responseMap);
-            if (MasterValues::ResponseResult::success == responseMap.value(MasterFileds::ret).toString()
-                    && getSettingValue(DefineFields::Admin_Account).toString() != dataMap.value(DefineFields::UserId).toString()){
+//            if (MasterValues::ResponseResult::success == responseMap.value(MasterFileds::ret).toString()
+//                    && getSettingValue(DefineFields::Admin_Account).toString() != dataMap.value(DefineFields::UserId).toString()){
 
-            }
+//            }
             break;
         case Protocol::settingFile:
             sendFileMsg(socket);
@@ -347,10 +355,28 @@ void SettingsLogic::slotOnReadyRead()
 void SettingsLogic::slotDisconnected()
 {
     QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
-    if (m_map.contains(socket))
-        m_map.remove(socket);
-    socket->close();
-    socket->deleteLater();
+//    if (m_map.contains(socket))
+//        m_map.remove(socket);
+    QVariantMap dataMap = m_logInfoMap.value(socket);
+    QString fileName = dataMap.value(MasterValues::LogInfo::pathFileName).toString();
+    QFileInfo fileInfo(fileName);
+    if (fileInfo.exists() && fileInfo.isFile()){
+        QSet<QTcpSocket*> set = m_dicFile.value(fileInfo.absoluteFilePath());
+        if (set.contains(socket))
+            set.remove(socket);
+        if (set.isEmpty())
+            m_dicFile.remove(fileInfo.absoluteFilePath());
+        else {
+            m_dicFile[fileInfo.absoluteFilePath()] = set;
+        }
+    }
+    if (m_logInfoMap.contains(socket))
+        m_logInfoMap.remove(socket);
+    if (socket){
+        socket->close();
+        socket->deleteLater();
+    }
+
 }
 
 void SettingsLogic::slotSendSettingFileEnd(const QVariantMap &dataMap)
@@ -360,11 +386,13 @@ void SettingsLogic::slotSendSettingFileEnd(const QVariantMap &dataMap)
 
 void SettingsLogic::slotWatcherFileChanged(const QString &fileName)
 {
+//    qDebug() << __FUNCTION__ << fileName << m_settings->fileName();
     if (fileName == m_settings->fileName()){
         m_settings->sync();
         return;
     }
 
+//    qDebug() << m_dicFile;
     if (m_dicFile.contains(fileName)){
         QSet<QTcpSocket*> socketSet = m_dicFile.value(fileName);
         QVariantMap dataMap;
@@ -372,6 +400,7 @@ void SettingsLogic::slotWatcherFileChanged(const QString &fileName)
             dataMap = m_logInfoMap.value(socket);
             procLogFileChange(socket, dataMap);
         }
+//        qDebug() << fileName << m_settings->fileName() << dataMap;
     }
 }
 
@@ -420,7 +449,7 @@ void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, 
     QString userId = dataMap.value(DefineFields::UserId).toString();
     QString key = DefineFields::Path+dataMap.value(DefineFields::UserId).toString();
     QString generalPath = m_settings->value(DefineFields::Path).toString();
-    m_map.insert(socket, dataMap.value(DefineFields::UserId).toString());
+//    m_map.insert(socket, dataMap.value(DefineFields::UserId).toString());
     m_settings->beginGroup(dataMap.value(DefineFields::UserId).toString());
     CheckSettingValue(key, generalPath);
     QString path = m_settings->value(key).toString();
@@ -436,7 +465,7 @@ void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, 
     QStringList fileList = dir.entryList();
     QStringList dirFileList;
     foreach(auto fileName, fileList){
-        dirFileList.append(QDir::fromNativeSeparators(filePath + "/" + fileName));
+        dirFileList.append(QDir::fromNativeSeparators(filePath + fileName));
     }
     if (dirFileList.isEmpty()){
         qDebug() << __FUNCTION__ << path << "此路径不存在文件或文件夹";
@@ -444,6 +473,7 @@ void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, 
     }
     if (!dirFileList.isEmpty()){
         QString fileName = dirFileList.first();
+//        qDebug() << __FUNCTION__ << fileName;
         QFile logFile(fileName);
         if (!logFile.exists()){
             qDebug() << __FUNCTION__ << fileName << "此路径下文件不存在";
@@ -451,23 +481,34 @@ void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, 
         }
         QFileInfo fileInfo(logFile);
         if (fileInfo.exists() && fileInfo.isFile()){
-            qint64 pos = 0;
-            QByteArray tmp;
+//            qint64 pos = 0;
+//            qint64 startpos = 0;
+//            QByteArray tmp;
+            QList<FileRowItem> contentList;
+            int rowNum = 0;
             if (logFile.open(QIODevice::ReadOnly | QIODevice::Text)){
                 while(!logFile.atEnd()){
-                    tmp = logFile.readAll();
-                    pos = logFile.pos();
+                    FileRowItem item;
+                    item.startPos = logFile.pos();
+                    item.content = logFile.readLine();
+                    item.endPos = logFile.pos();
+                    rowNum++;
+                    contentList.append(item);
                 }
                 logFile.close();
+                if (rowNum > MaxRow){
+                    int startRow = rowNum - MaxRow;
+                    contentList = contentList.mid(startRow, 50);
+                }
             }
-            qDebug() << __FUNCTION__ << pos;
+//            qDebug() << __FUNCTION__ << pos;
 
             QVariantMap logInfoMap;
-            logInfoMap.insert(MasterValues::LogInfo::currentPos, pos);
-            logInfoMap.insert(MasterValues::LogInfo::pathFileName, fileName);
+//            logInfoMap.insert(MasterValues::LogInfo::currentPos, pos);
+            logInfoMap.insert(MasterValues::LogInfo::pathFileName, fileInfo.absoluteFilePath());
             logInfoMap.insert(MasterValues::LogInfo::key, userId+"/" + key);
             logInfoMap.insert(DefineFields::UserId, userId);
-            logInfoMap.insert(DefineFields::Path, path);
+            logInfoMap.insert(DefineFields::Path, dir.absolutePath());
 
             m_logInfoMap.insert(socket, logInfoMap);
 
@@ -476,11 +517,15 @@ void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, 
             responseMap.insert(DefineFields::funcType, FuncType::Log);
             responseMap.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
             responseMap.insert(MasterFileds::textDescribe, errorInfo);
+            QByteArray tmp;
+            foreach(auto item, contentList){
+                tmp.append(item.content);
+            }
             responseMap.insert(MasterValues::LogInfo::content, QString::fromStdString(tmp.toStdString()));
-            FileSystemWatcher::pInstance()->addWatchPath(fileName);
+            FileSystemWatcher::pInstance()->addWatchPath(fileInfo.absoluteFilePath());
 //            QSet<QTcpSocket*> set;
 //            set.insert(socket);
-            m_dicFile[fileName].insert(socket);
+            m_dicFile[fileInfo.absoluteFilePath()].insert(socket);
         }
     }
 }
@@ -488,7 +533,7 @@ void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, 
 void SettingsLogic::procLogFileChange(QTcpSocket* socket, const QVariantMap &dataMap)
 {
     QString path = dataMap.value(DefineFields::Path).toString();
-    qDebug() << __FUNCTION__ << path;
+//    qDebug() << __FUNCTION__ << path;
     QDir dir(path);
     if (!dir.exists()){
         qDebug() << __FUNCTION__ << path << "此路径不存在";
@@ -501,7 +546,7 @@ void SettingsLogic::procLogFileChange(QTcpSocket* socket, const QVariantMap &dat
     QStringList fileList = dir.entryList();
     QStringList dirFileList;
     foreach(auto fileName, fileList){
-        dirFileList.append(QDir::fromNativeSeparators(filePath + "/" + fileName));
+        dirFileList.append(QDir::fromNativeSeparators(filePath +"/" + fileName));
     }
     if (dirFileList.isEmpty()){
         qDebug() << __FUNCTION__ << path << "此路径不存在文件或文件夹";
@@ -509,9 +554,9 @@ void SettingsLogic::procLogFileChange(QTcpSocket* socket, const QVariantMap &dat
     }
     if (!dirFileList.isEmpty()){
         QString fileName = dirFileList.first();
-        qint64 pos = 0;
+//        qint64 pos = 0;
         if (fileName == dataMap.value(MasterValues::LogInfo::pathFileName).toString()){
-            pos = dataMap.value(MasterValues::LogInfo::currentPos).toLongLong();
+//            pos = dataMap.value(MasterValues::LogInfo::currentPos).toLongLong();
         }
         QFile logFile(fileName);
         if (!logFile.exists()){
@@ -519,26 +564,45 @@ void SettingsLogic::procLogFileChange(QTcpSocket* socket, const QVariantMap &dat
             return;
         }
         QFileInfo fileInfo(logFile);
-        if (!logFile.open(QIODevice::ReadOnly| QIODevice::Text)){
-            qDebug() << __FUNCTION__ << fileName << "此路径下文件打开失败";
-            return;
+        if (fileInfo.exists() &&fileInfo.isFile()){
+            QList<FileRowItem> contentList;
+            int rowNum = 0;
+            if (logFile.open(QIODevice::ReadOnly| QIODevice::Text)){
+                while(!logFile.atEnd()){
+                    FileRowItem item;
+                    item.startPos = logFile.pos();
+                    item.content = logFile.readLine();
+                    item.endPos = logFile.pos();
+                    rowNum++;
+                    contentList.append(item);
+                }
+                logFile.close();
+                if (rowNum > MaxRow){
+                    int startRow = rowNum - MaxRow;
+                    contentList = contentList.mid(startRow, 50);
+                }
+
+                QVariantMap responseMap;
+                QString errorInfo;
+                responseMap = dataMap;
+                responseMap.insert(DefineFields::funcType, FuncType::Log);
+                responseMap.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
+                responseMap.insert(MasterFileds::textDescribe, errorInfo);
+                QByteArray tmp;
+                foreach(auto item, contentList){
+                    tmp.append(item.content);
+                }
+                responseMap.insert(MasterValues::LogInfo::content, QString::fromStdString(tmp.toStdString()));
+
+                Protocol response(Protocol::Type::log);
+                response.setData(responseMap);
+                socket->write(response.pack());
+            }else {
+                qDebug() << __FUNCTION__ << fileName << "此路径下文件打开失败";
+                return;
+            }
         }
-        QTextStream ts(&logFile);
-        ts.seek(pos);
-        QString text = ts.readAll();
-        logFile.close();
 
-        QVariantMap responseMap;
-        QString errorInfo;
-        responseMap = dataMap;
-        responseMap.insert(DefineFields::funcType, FuncType::Log);
-        responseMap.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
-        responseMap.insert(MasterFileds::textDescribe, errorInfo);
-        responseMap.insert(MasterValues::LogInfo::content, text);
-
-        Protocol response(Protocol::Type::log);
-        response.setData(responseMap);
-        socket->write(response.pack());
     }
 }
 

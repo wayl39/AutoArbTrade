@@ -164,7 +164,8 @@ void UserWindow::slotLogRspMsg(const QVariantMap &dataMap)
 {
     if (MasterValues::ResponseResult::success == dataMap.value(MasterFileds::ret).toString()){
         QString text = dataMap.value(MasterValues::LogInfo::content).toString();
-        ui->textBrowser_log->append(text);
+        ui->textBrowser_log->setText(text);
+        ui->textBrowser_log->moveCursor(QTextCursor::End);
     }
 }
 
