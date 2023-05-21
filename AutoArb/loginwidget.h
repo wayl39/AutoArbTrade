@@ -31,7 +31,13 @@ private slots:
     void on_btnLogin_clicked();
 
 private:
+    void createWidget();
+    void createConnect();
+    QString getHostMacAddress();
+private:
     Ui::LoginWidget *ui;
+
+
 };
 
 #endif // LOGINWIDGET_H

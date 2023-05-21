@@ -23,7 +23,8 @@ public:
     static const QString Admin_Password; // = "Admin_Password";
     static const QString Ip; // = "ip";
     static const QString Port; // = "port";
-    static const QString Admin; // = "Admin";
+    static const QString Path; // = "path";
+	static const QString Admin; // = "Admin";
     static const QString sender; // = "sender";
 };
 
@@ -31,8 +32,8 @@ class FuncType : public noncopyable
 {
 public:
     static const QString Settings; // = "Settings";
-    static const QString Login; // = "Login";
     static const QString Log; // = "Log";
+    static const QString Login; // = "Login";
     static const QString AddTrader; // = "addTrader";
     static const QString DeleteTrader; // = "deleteTrader";
     static const QString AddFundAccount; // = "addFundAccount";
@@ -67,6 +68,7 @@ public:
         static const QString currentPos; // = "10004";
         static const QString pathFileName; // = "10005";
         static const QString content; // = "10006";
+        static const QString key; // = "10007";
     };
 
 };

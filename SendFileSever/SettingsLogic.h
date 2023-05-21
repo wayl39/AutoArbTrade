@@ -5,7 +5,7 @@
 #include <QVariantMap>
 #include <QTcpSocket>
 #include <QTcpServer>
-
+#include <QTimer>
 
 //Q_DECLARE_METATYPE(QVariant)
 
@@ -80,6 +80,7 @@ private:
 //    QTcpSocket* m_socket{Q_NULLPTR};
 //    QMap<QTcpSocket*, QString> m_map;
     QMap<QTcpSocket*, QVariantMap> m_logInfoMap;
+    QMap<QTcpSocket*, QTimer*> m_logTimerMap;
     QMap<QString, QSet<QTcpSocket*>> m_dicFile;
 };
 

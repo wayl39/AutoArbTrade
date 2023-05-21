@@ -35,6 +35,7 @@ void AddTraderWidget::slotOkBtnClicked()
     dataMap.insert(DefineFields::UserId, ui->lineEdit_account->text());
     dataMap.insert(DefineFields::PassWord, ui->lineEdit_password->text());
     dataMap.insert(DefineFields::Mac, ui->lineEdit_mac->text());
+    dataMap.insert(DefineFields::Path + ui->lineEdit_account->text(), ui->lineEdit_logAddr->text());
     SettingsLogic::GetInstance()->writeSetting(dataMap);
 //    if (!errorInfo.isEmpty()){
 //        QMessageBox::critical(this, "添加交易员", errorInfo);
@@ -78,6 +79,7 @@ void AddTraderWidget::createWidget()
     ui->pb_passwordVisible->setText("隐藏");
     // 密码输入框只能输入数字字母
     ui->lineEdit_password->setValidator(new QRegExpValidator(QRegExp("^[a-zA-Z0-9]{1,}$")));
+    ui->pb_selectDir->hide();
 }
 
 void AddTraderWidget::createLayout()

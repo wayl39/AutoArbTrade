@@ -9,6 +9,7 @@
 #include <QDebug>
 #include "FileSystemWatcher.h"
 #include <QDateTime>
+#include <QProcess>
 
 UserWindow::UserWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -62,6 +63,9 @@ void UserWindow::createConncet()
     });
 
     connect(SettingsLogic::GetInstance(), &SettingsLogic::signalLogRspMsg, this, &UserWindow::slotLogRspMsg);
+
+    connect(ui->pb_start, &QPushButton::clicked, this, &UserWindow::slotStartStrategy);
+    connect(ui->pb_stop, &QPushButton::clicked, this, &UserWindow::slotStopStrategy);
 }
 
 void UserWindow::getFileLog()
@@ -201,4 +205,36 @@ void UserWindow::slotTimeOut()
     }
 
 
+}
+
+void UserWindow::slotStartStrategy()
+{
+    QProcess p(nullptr);
+    QString workDir= "D:/AAA/DeepDiagnosis/src";
+    p.setWorkingDirectory(workDir); //设置工作文件夹
+    QString batfile="/start_predict.bat"; //分析启动程序
+    QString filePath=workDir+batfile; //执行文件的路径
+    p.start(filePath); //开始
+    if(p.waitForFinished()){
+        qDebug()<<"success";
+    }else{
+        qDebug()<<"error";
+        qDebug()<<p.errorString();
+    }
+}
+
+void UserWindow::slotStopStrategy()
+{
+    QProcess p(nullptr);
+    QString workDir= "D:/AAA/DeepDiagnosis/src";
+    p.setWorkingDirectory(workDir); //设置工作文件夹
+    QString batfile="/start_predict.bat"; //分析启动程序
+    QString filePath=workDir+batfile; //执行文件的路径
+    p.start(filePath); //开始
+    if(p.waitForFinished()){
+        qDebug()<<"success";
+    }else{
+        qDebug()<<"error";
+        qDebug()<<p.errorString();
+    }
 }

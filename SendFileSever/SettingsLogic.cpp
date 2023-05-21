@@ -43,7 +43,8 @@ void SettingsLogic::logProcFunc(const QVariantMap &dataMap, QVariantMap& respons
     QString password = dataMap.value(DefineFields::PassWord).toString();
     QString macAddress = dataMap.value(DefineFields::Mac).toString();
     if (getSettingValue(DefineFields::Admin_Account).toString() == username
-            && SettingsLogic::GetInstance()->getSettingValue(DefineFields::Admin_Password).toString() == password){
+            && SettingsLogic::GetInstance()->getSettingValue(DefineFields::Admin_Password).toString() == password
+            && SettingsLogic::GetInstance()->getSettingValue(DefineFields::Admin_MAC).toString() == macAddress){
         responseMsg.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
         responseMsg.insert(MasterFileds::textDescribe, QString());
         responseMsg.insert(DefineFields::UserId, username);
@@ -110,6 +111,7 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap, QVariantMap& respon
             m_settings->setValue(DefineFields::UserId,dataMap.value(DefineFields::UserId).toString());
             m_settings->setValue(DefineFields::PassWord, dataMap.value(DefineFields::PassWord).toString());
             m_settings->setValue(DefineFields::Mac, dataMap.value(DefineFields::Mac).toString());
+            m_settings->setValue(DefineFields::Path + dataMap.value(DefineFields::UserId).toString(), dataMap.value(DefineFields::Path + dataMap.value(DefineFields::UserId).toString()).toString());
             m_settings->endGroup();
             ret = MasterValues::ResponseResult::success;
         }
@@ -264,6 +266,7 @@ void SettingsLogic::initSetting()
     // 设置管理员账号，密码
     CheckSettingValue(DefineFields::Admin_Account, "Admin");
     CheckSettingValue(DefineFields::Admin_Password, "123456");
+    CheckSettingValue(DefineFields::Admin_MAC, QString());
     CheckSettingValue(DefineFields::Ip, "127.0.0.1");
     CheckSettingValue(DefineFields::Port, "8989");
     CheckSettingValue(DefineFields::Path, path);
@@ -357,6 +360,7 @@ void SettingsLogic::slotDisconnected()
     QTcpSocket* socket = static_cast<QTcpSocket*>(sender());
 //    if (m_map.contains(socket))
 //        m_map.remove(socket);
+
     QVariantMap dataMap = m_logInfoMap.value(socket);
     QString fileName = dataMap.value(MasterValues::LogInfo::pathFileName).toString();
     QFileInfo fileInfo(fileName);
@@ -372,6 +376,14 @@ void SettingsLogic::slotDisconnected()
     }
     if (m_logInfoMap.contains(socket))
         m_logInfoMap.remove(socket);
+    if (m_logTimerMap.contains(socket)){
+        QTimer* timer = m_logTimerMap.value(socket);
+        if (timer){
+            timer->stop();
+            timer->deleteLater();
+        }
+        m_logTimerMap.remove(socket);
+    }
     if (socket){
         socket->close();
         socket->deleteLater();
@@ -465,7 +477,7 @@ void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, 
     QStringList fileList = dir.entryList();
     QStringList dirFileList;
     foreach(auto fileName, fileList){
-        dirFileList.append(QDir::fromNativeSeparators(filePath + fileName));
+        dirFileList.append(QDir::fromNativeSeparators(filePath + "/" + fileName));
     }
     if (dirFileList.isEmpty()){
         qDebug() << __FUNCTION__ << path << "此路径不存在文件或文件夹";
@@ -511,6 +523,14 @@ void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, 
             logInfoMap.insert(DefineFields::Path, dir.absolutePath());
 
             m_logInfoMap.insert(socket, logInfoMap);
+            QTimer* timer = new QTimer(socket);
+            m_logTimerMap.insert(socket, timer);
+            timer->start(10* 1000);
+            connect(timer, &QTimer::timeout, this, [=](){
+                QVariantMap dataMap;
+                dataMap = m_logInfoMap.value(socket);
+                procLogFileChange(socket, dataMap);
+            });
 
             QString errorInfo;
             responseMap = logInfoMap;

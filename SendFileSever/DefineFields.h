@@ -21,6 +21,7 @@ public:
     static const QString FundAccount; // = "fund_account";
     static const QString Admin_Account; //= "Admin_Account";
     static const QString Admin_Password; // = "Admin_Password";
+    static const QString Admin_MAC; // = "Admin_MAC";
     static const QString Ip; // = "ip";
     static const QString Port; // = "port";
     static const QString Path; // = "path";

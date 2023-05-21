@@ -10,12 +10,12 @@ const QString DefineFields::Admin_Account = "Admin_Account";
 const QString DefineFields::Admin_Password = "Admin_Password";
 const QString DefineFields::Ip = "ip";
 const QString DefineFields::Port = "port";
+const QString DefineFields::Path = "path";
 const QString DefineFields::Admin = "Admin";
 const QString DefineFields::sender = "sender";
-
 const QString FuncType::Settings = "Settings";
-const QString FuncType::Login = "Login";
 const QString FuncType::Log = "Log";
+const QString FuncType::Login = "Login";
 const QString FuncType::AddTrader = "addTrader";
 const QString FuncType::DeleteTrader = "deleteTrader";
 const QString FuncType::AddFundAccount = "addFundAccount";
@@ -36,3 +36,5 @@ const QString MasterValues::LogInfo::totalRow = "10003";
 const QString MasterValues::LogInfo::currentPos= "10004";
 const QString MasterValues::LogInfo::pathFileName= "10005";
 const QString MasterValues::LogInfo::content = "10006";
+const QString MasterValues::LogInfo::key = "10007";
+

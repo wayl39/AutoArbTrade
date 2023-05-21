@@ -39,6 +39,9 @@ public slots:
     void slotLogRspMsg(const QVariantMap& dataMap);
 private slots:
     void slotTimeOut();
+
+    void slotStartStrategy();
+    void slotStopStrategy();
 private:
     void createWidget();
     void createLayout();
