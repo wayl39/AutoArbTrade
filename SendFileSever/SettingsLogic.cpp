@@ -42,15 +42,29 @@ void SettingsLogic::logProcFunc(const QVariantMap &dataMap, QVariantMap& respons
     QString username = dataMap.value(DefineFields::UserId).toString();
     QString password = dataMap.value(DefineFields::PassWord).toString();
     QString macAddress = dataMap.value(DefineFields::Mac).toString();
-    if (getSettingValue(DefineFields::Admin_Account).toString() == username
-            && SettingsLogic::GetInstance()->getSettingValue(DefineFields::Admin_Password).toString() == password
-            && SettingsLogic::GetInstance()->getSettingValue(DefineFields::Admin_MAC).toString() == macAddress){
-        responseMsg.insert(MasterFileds::ret, MasterValues::ResponseResult::success);
-        responseMsg.insert(MasterFileds::textDescribe, QString());
+    QString ret, errorInfo;
+    if (getSettingValue(DefineFields::Admin_Account).toString() == username){
+        do {
+            if (SettingsLogic::GetInstance()->getSettingValue(DefineFields::Admin_Password).toString() != password){
+                ret = MasterValues::ResponseResult::fail;
+                errorInfo = "密码填写错误";
+                break;
+            }
+            if (SettingsLogic::GetInstance()->getSettingValue(DefineFields::Admin_MAC).toString() != macAddress){
+                ret = MasterValues::ResponseResult::fail;
+                errorInfo = "MAC填写错误";
+                break;
+            }
+        }while (false);
+        if (errorInfo.isEmpty()){
+            ret = MasterValues::ResponseResult::success;
+        }
+        responseMsg.insert(MasterFileds::ret, ret);
+        responseMsg.insert(MasterFileds::textDescribe, errorInfo);
         responseMsg.insert(DefineFields::UserId, username);
         return;
     }
-    QString ret, errorInfo;
+
     QStringList cliendIdList = m_settings->childGroups();
 //    qDebug() << __FUNCTION__ << cliendIdList;
     if (!cliendIdList.contains(username)){
