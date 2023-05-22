@@ -83,7 +83,7 @@ void LoginWidget::on_btnLogin_clicked()
 void LoginWidget::createWidget()
 {
     ui->btnRegister->hide();
-//    ui->lineEdit_MacAddress->setReadOnly(true);
+    ui->lineEdit_MacAddress->setReadOnly(true);
     ui->lineEdit_MacAddress->setText(getHostMacAddress());
 }
 

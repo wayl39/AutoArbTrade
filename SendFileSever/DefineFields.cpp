@@ -12,6 +12,7 @@ const QString DefineFields::Admin_MAC = "Admin_MAC";
 const QString DefineFields::Ip = "ip";
 const QString DefineFields::Port = "port";
 const QString DefineFields::Path = "path";
+const QString DefineFields::StrategyFilePath = "strategyFilePath";
 
 const QString FuncType::Settings = "Settings";
 const QString FuncType::Log = "Log";
@@ -21,6 +22,8 @@ const QString FuncType::AddFundAccount = "addFundAccount";
 const QString FuncType::DeleteFundAccount = "deleteFundAccount";
 const QString FuncType::ReadTraderMsg = "readTraderMsg";
 const QString FuncType::ModifiTraderMsg = "modifiTraderMsg";
+const QString FuncType::StartStrategy = "StartStrategy";
+const QString FuncType::StopStrategy = "StopStrategy";
 
 const QString MasterFileds::ret = "10008";
 const QString MasterFileds::textDescribe = "58";

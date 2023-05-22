@@ -68,6 +68,8 @@ private:
 
     void procLogFileChange(QTcpSocket* socket, const QVariantMap &dataMap);
 
+    void procStrategyStartAndStop(const QVariantMap& dataMap, QVariantMap &responseMap);
+
     QVariantMap getAllSettings();
 
 private:

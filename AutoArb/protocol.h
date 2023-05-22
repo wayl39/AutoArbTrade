@@ -23,6 +23,8 @@ public:
         modifiTraderMsg,
         log,
         settingFile,
+        startStrategy,
+        stopStrategy,
     };
     Protocol(Type type = none);
 

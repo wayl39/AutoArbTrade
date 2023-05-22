@@ -37,6 +37,8 @@ public slots:
     void slotDeleteRiskClicked();
 
     void slotLogRspMsg(const QVariantMap& dataMap);
+
+    void slotStrategyStartAndStopMsg(const QVariantMap& dataMap);
 private slots:
     void slotTimeOut();
 
