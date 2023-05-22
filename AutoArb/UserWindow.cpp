@@ -10,6 +10,7 @@
 #include "FileSystemWatcher.h"
 #include <QDateTime>
 #include <QProcess>
+#include <QMessageBox>
 
 UserWindow::UserWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -37,7 +38,7 @@ void UserWindow::createWidget()
     setWindowTitle("交易管理系统(交易员)");
 //    QStringList cliendIdList
 
-    ui->widget_strategy->hide();
+//    ui->widget_strategy->hide();
     ui->menubar->removeAction(ui->action_addStragety);
     ui->menubar->removeAction(ui->action_deleteStragety);
     ui->menu_strategyManager->clear();
@@ -45,6 +46,7 @@ void UserWindow::createWidget()
     ui->menu_log->clear();
     ui->menu_log->setTitle("");
     ui->widget_btn->hide();
+    ui->listWidget_strategy->hide();
 }
 
 void UserWindow::createLayout()
@@ -66,6 +68,8 @@ void UserWindow::createConncet()
 
     connect(ui->pb_start, &QPushButton::clicked, this, &UserWindow::slotStartStrategy);
     connect(ui->pb_stop, &QPushButton::clicked, this, &UserWindow::slotStopStrategy);
+
+    connect(SettingsLogic::GetInstance(), &SettingsLogic::signalStrategyStartAndStopMsg, this, &UserWindow::slotStrategyStartAndStopMsg);
 }
 
 void UserWindow::getFileLog()
@@ -173,6 +177,19 @@ void UserWindow::slotLogRspMsg(const QVariantMap &dataMap)
     }
 }
 
+void UserWindow::slotStrategyStartAndStopMsg(const QVariantMap &dataMap)
+{
+    if (MasterValues::ResponseResult::success == dataMap.value(MasterFileds::ret).toString())
+    {
+        QMessageBox::information(this, QString("%1策略").arg(FuncType::StartStrategy == dataMap.value(DefineFields::funcType).toString() ? "启动" : "停止"), dataMap.value(MasterFileds::textDescribe).toString());
+        return;
+    } else {
+        QMessageBox::critical(this, QString("%1策略").arg(FuncType::StartStrategy == dataMap.value(DefineFields::funcType).toString() ? "启动" : "停止"), dataMap.value(MasterFileds::textDescribe).toString());
+        return;
+    }
+
+}
+
 void UserWindow::slotTimeOut()
 {
 //    qDebug() << __FUNCTION__ << m_fileInfo.size() << m_fileSize;
@@ -209,32 +226,16 @@ void UserWindow::slotTimeOut()
 
 void UserWindow::slotStartStrategy()
 {
-    QProcess p(nullptr);
-    QString workDir= "D:/AAA/DeepDiagnosis/src";
-    p.setWorkingDirectory(workDir); //设置工作文件夹
-    QString batfile="/start_predict.bat"; //分析启动程序
-    QString filePath=workDir+batfile; //执行文件的路径
-    p.start(filePath); //开始
-    if(p.waitForFinished()){
-        qDebug()<<"success";
-    }else{
-        qDebug()<<"error";
-        qDebug()<<p.errorString();
-    }
+    QVariantMap msgMap;
+    msgMap.insert(DefineFields::funcType, FuncType::StartStrategy);
+    msgMap.insert(DefineFields::UserId, m_clientId);
+    SettingsLogic::GetInstance()->writeSetting(msgMap);
 }
 
 void UserWindow::slotStopStrategy()
 {
-    QProcess p(nullptr);
-    QString workDir= "D:/AAA/DeepDiagnosis/src";
-    p.setWorkingDirectory(workDir); //设置工作文件夹
-    QString batfile="/start_predict.bat"; //分析启动程序
-    QString filePath=workDir+batfile; //执行文件的路径
-    p.start(filePath); //开始
-    if(p.waitForFinished()){
-        qDebug()<<"success";
-    }else{
-        qDebug()<<"error";
-        qDebug()<<p.errorString();
-    }
+    QVariantMap msgMap;
+    msgMap.insert(DefineFields::funcType, FuncType::StopStrategy);
+    msgMap.insert(DefineFields::UserId, m_clientId);
+    SettingsLogic::GetInstance()->writeSetting(msgMap);
 }

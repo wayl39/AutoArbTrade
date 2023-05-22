@@ -12,6 +12,7 @@
 #include "protocol.h"
 #include <QDir>
 #include <QFileInfo>
+#include <QProcess>
 
 static int MaxRow = 50;
 
@@ -284,6 +285,7 @@ void SettingsLogic::initSetting()
     CheckSettingValue(DefineFields::Ip, "127.0.0.1");
     CheckSettingValue(DefineFields::Port, "8989");
     CheckSettingValue(DefineFields::Path, path);
+    CheckSettingValue(DefineFields::StrategyFilePath, QDir::toNativeSeparators(QCoreApplication::applicationDirPath()));
 
     m_s = new QTcpServer(this);
     unsigned short port = m_settings->value(DefineFields::Port).toString().toUShort();
@@ -355,6 +357,10 @@ void SettingsLogic::slotOnReadyRead()
             break;
         case Protocol::log:
             procLogFile(socket, dataMap, responseMap);
+            break;
+        case Protocol::stopStrategy:
+        case Protocol::startStrategy:
+            procStrategyStartAndStop(dataMap, responseMap);
             break;
         default:
             break;
@@ -638,6 +644,38 @@ void SettingsLogic::procLogFileChange(QTcpSocket* socket, const QVariantMap &dat
         }
 
     }
+}
+
+void SettingsLogic::procStrategyStartAndStop(const QVariantMap &dataMap, QVariantMap &responseMap)
+{
+    QString ret, errorInfo;
+    responseMap = dataMap;
+    QString workdir = getSettingValue(DefineFields::StrategyFilePath).toString();
+    QDir dir(workdir);
+    QString filePath = dir.fromNativeSeparators(workdir);
+    qDebug() << __FUNCTION__ << filePath << workdir;
+    QProcess p(nullptr);
+    p.setWorkingDirectory(filePath); //设置工作文件夹
+    QString batfile;
+    if (FuncType::StartStrategy == dataMap.value(DefineFields::funcType).toString()) {
+        batfile ="/start.bat"; //分析启动程序
+    } else if (FuncType::StopStrategy == dataMap.value(DefineFields::funcType).toString())
+    {
+        batfile = "/stop.bat";
+    }
+    QString filePath1 = filePath +batfile; //执行文件的路径
+    p.start(filePath1); //开始
+    if(p.waitForFinished()){
+        ret = MasterValues::ResponseResult::success;
+        errorInfo = QString("%1策略成功！").arg(FuncType::StartStrategy == dataMap.value(DefineFields::funcType).toString() ? "启动" : "停止");
+        qDebug()<< __FUNCTION__ << "success";
+    }else{
+        ret = MasterValues::ResponseResult::fail;
+        errorInfo = p.errorString();
+        qDebug()<< __FUNCTION__ << "error" << p.errorString();
+    }
+    responseMap.insert(MasterFileds::ret, ret);
+    responseMap.insert(MasterFileds::textDescribe, errorInfo);
 }
 
 QVariantMap SettingsLogic::getAllSettings()

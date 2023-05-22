@@ -22,6 +22,8 @@ const QString FuncType::AddFundAccount = "addFundAccount";
 const QString FuncType::DeleteFundAccount = "deleteFundAccount";
 const QString FuncType::ReadTraderMsg = "readTraderMsg";
 const QString FuncType::ModifiTraderMsg = "modifiTraderMsg";
+const QString FuncType::StartStrategy = "StartStrategy";
+const QString FuncType::StopStrategy = "StopStrategy";
 
 const QString MasterFileds::ret = "10008";
 const QString MasterFileds::textDescribe = "58";

@@ -84,6 +84,14 @@ void SettingsLogic::writeSetting(const QVariantMap &dataMap)
         Protocol p(Protocol::log);
         p.setData(dataMap);
         m_socket->write(p.pack());
+    } else if (FuncType::StartStrategy == dataMap.value(DefineFields::funcType).toString()){
+        Protocol p(Protocol::startStrategy);
+        p.setData(dataMap);
+        m_socket->write(p.pack());
+    } else if (FuncType::StopStrategy == dataMap.value(DefineFields::funcType).toString()){
+        Protocol p(Protocol::stopStrategy);
+        p.setData(dataMap);
+        m_socket->write(p.pack());
     }
 }
 
@@ -184,6 +192,10 @@ void SettingsLogic::slotOnReadyRead()
             break;
         case Protocol::log:
             emit signalLogRspMsg(dataMap);
+            break;
+        case Protocol::stopStrategy:
+        case Protocol::startStrategy:
+            emit signalStrategyStartAndStopMsg(dataMap);
             break;
         default:
             break;

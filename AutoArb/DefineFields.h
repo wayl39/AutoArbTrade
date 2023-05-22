@@ -40,6 +40,8 @@ public:
     static const QString DeleteFundAccount; // = "deleteFundAccount";
     static const QString ReadTraderMsg; // = "readTraderMsg";
     static const QString ModifiTraderMsg; // = "modifiTraderMsg";
+    static const QString StartStrategy; // = "StartStrategy";
+    static const QString StopStrategy; // = "StopStrategy";
 };
 
 class MasterFileds : public noncopyable
