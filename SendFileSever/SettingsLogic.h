@@ -72,6 +72,8 @@ private:
 
     QVariantMap getAllSettings();
 
+    QByteArray utf8ToGB2312(QString utf8Data);
+
 private:
     SettingsLogic();
 
