@@ -653,9 +653,9 @@ void SettingsLogic::procStrategyStartAndStop(const QVariantMap &dataMap, QVarian
     QString workdir = getSettingValue(DefineFields::StrategyFilePath).toString();
     QDir dir(workdir);
     QString filePath = dir.fromNativeSeparators(workdir);
-    qDebug() << __FUNCTION__ << filePath << workdir;
+
     QProcess p(nullptr);
-    p.setWorkingDirectory(filePath); //设置工作文件夹
+    p.setWorkingDirectory("C:\\Users\\EDY\\Desktop"); //设置工作文件夹
     QString batfile;
     if (FuncType::StartStrategy == dataMap.value(DefineFields::funcType).toString()) {
         batfile ="/start.bat"; //分析启动程序
@@ -664,8 +664,12 @@ void SettingsLogic::procStrategyStartAndStop(const QVariantMap &dataMap, QVarian
         batfile = "/stop.bat";
     }
     QString filePath1 = filePath +batfile; //执行文件的路径
-    p.start(filePath1); //开始
-    if(p.waitForFinished()){
+    p.start("C:\\Users\\EDY\\Desktop\\start.bat"); //开始
+    qDebug() << __FUNCTION__ << filePath1;
+    if (!p.waitForStarted()){
+
+    }
+    if(p.waitForFinished(-1)){
         ret = MasterValues::ResponseResult::success;
         errorInfo = QString("%1策略成功！").arg(FuncType::StartStrategy == dataMap.value(DefineFields::funcType).toString() ? "启动" : "停止");
         qDebug()<< __FUNCTION__ << "success";
@@ -674,6 +678,8 @@ void SettingsLogic::procStrategyStartAndStop(const QVariantMap &dataMap, QVarian
         errorInfo = p.errorString();
         qDebug()<< __FUNCTION__ << "error" << p.errorString();
     }
+    p.kill();
+    p.close();
     responseMap.insert(MasterFileds::ret, ret);
     responseMap.insert(MasterFileds::textDescribe, errorInfo);
 }
