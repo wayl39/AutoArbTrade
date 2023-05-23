@@ -74,6 +74,10 @@ private:
 
     QByteArray utf8ToGB2312(QString utf8Data);
 
+    QString GBK2UTF8(QByteArray &inStr);
+
+    QString UTF82GBK(QByteArray& inStr);
+
 private:
     SettingsLogic();
 

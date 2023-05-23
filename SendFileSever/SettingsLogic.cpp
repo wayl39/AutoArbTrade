@@ -514,9 +514,6 @@ void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, 
         }
         QFileInfo fileInfo(logFile);
         if (fileInfo.exists() && fileInfo.isFile()){
-//            qint64 pos = 0;
-//            qint64 startpos = 0;
-//            QByteArray tmp;
             QList<FileRowItem> contentList;
             int rowNum = 0;
             if (logFile.open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -562,7 +559,7 @@ void SettingsLogic::procLogFile(QTcpSocket* socket, const QVariantMap &dataMap, 
             foreach(auto item, contentList){
                 tmp.append(item.content);
             }
-            responseMap.insert(MasterValues::LogInfo::content, QString::fromStdString(tmp.toStdString()));
+            responseMap.insert(MasterValues::LogInfo::content, GBK2UTF8(tmp));
             FileSystemWatcher::pInstance()->addWatchPath(fileInfo.absoluteFilePath());
 //            QSet<QTcpSocket*> set;
 //            set.insert(socket);
@@ -633,7 +630,7 @@ void SettingsLogic::procLogFileChange(QTcpSocket* socket, const QVariantMap &dat
                 foreach(auto item, contentList){
                     tmp.append(item.content);
                 }
-                responseMap.insert(MasterValues::LogInfo::content, QString::fromStdString(tmp.toStdString()));
+                responseMap.insert(MasterValues::LogInfo::content, GBK2UTF8(tmp));
 
                 Protocol response(Protocol::Type::log);
                 response.setData(responseMap);
@@ -664,7 +661,7 @@ void SettingsLogic::procStrategyStartAndStop(const QVariantMap &dataMap, QVarian
         batfile = "/stop.bat";
     }
     QString filePath1 = QDir::fromNativeSeparators(filePath +batfile); //执行文件的路径
-    p.start(filePath1); //开始
+    p.start(filePath1, QStringList() << filePath1); //开始
     qDebug() << __FUNCTION__ << filePath1;
     if (!p.waitForStarted()){
 
@@ -704,4 +701,32 @@ QByteArray SettingsLogic::utf8ToGB2312(QString utf8Data)
     QTextCodec *gbk = QTextCodec::codecForName("gbk");
     QByteArray bytegbkHex = gbk->fromUnicode(strUnicode).toHex();
     return bytegbkHex;
+}
+
+QString SettingsLogic::GBK2UTF8(QByteArray &inStr)
+{
+    QTextCodec *gbk = QTextCodec::codecForName("gbk");
+    QTextCodec *utf8 = QTextCodec::codecForName("UTF-8");
+
+    char* p = inStr.data();
+    QString str = gbk->toUnicode(p);
+
+    QByteArray utf8_bytes = utf8->fromUnicode(str);
+    p = utf8_bytes.data();
+    str = p;
+    return str;
+}
+
+QString SettingsLogic::UTF82GBK(QByteArray &inStr)
+{
+    QTextCodec *gbk = QTextCodec::codecForName("gbk");
+    QTextCodec *utf8 = QTextCodec::codecForName("UTF-8");
+
+    char* p = inStr.data();
+    QString str = utf8->toUnicode(p);
+
+    QByteArray utf8_bytes = gbk->fromUnicode(str);
+    p = utf8_bytes.data();
+    str = p;
+    return str;
 }
