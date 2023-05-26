@@ -414,7 +414,7 @@ void SettingsLogic::slotDisconnected()
 
 void SettingsLogic::slotSendSettingFileEnd(const QVariantMap &dataMap)
 {
-
+    Q_UNUSED(dataMap)
 }
 
 void SettingsLogic::slotWatcherFileChanged(const QString &fileName)
@@ -661,6 +661,10 @@ void SettingsLogic::procStrategyStartAndStop(const QVariantMap &dataMap, QVarian
         batfile = "/stop.bat";
     }
     QString filePath1 = QDir::fromNativeSeparators(filePath +batfile); //执行文件的路径
+    QStringList arguments;
+    arguments << "/c";
+    p.setProgram("cmd");
+    p.setArguments(arguments);
     p.start(filePath1, QStringList() << filePath1); //开始
     qDebug() << __FUNCTION__ << filePath1;
     if (!p.waitForStarted()){
