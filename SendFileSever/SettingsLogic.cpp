@@ -14,6 +14,7 @@
 #include <QFileInfo>
 #include <QProcess>
 #include <QTextCodec>
+#include <future>
 
 static int MaxRow = 50;
 
@@ -361,6 +362,13 @@ void SettingsLogic::slotOnReadyRead()
             break;
         case Protocol::stopStrategy:
         case Protocol::startStrategy:
+//        {
+//            std::future<void> task = std::async(std::launch::async,[=](){
+//                QVariantMap responseMap;
+//                procStrategyStartAndStop(dataMap, responseMap);
+//                emit signalStartegyResult(responseMap);
+//            });
+//        }
             procStrategyStartAndStop(dataMap, responseMap);
             break;
         default:

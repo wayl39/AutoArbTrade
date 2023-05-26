@@ -56,6 +56,8 @@ signals:
 
     void signalSendFile(QString path);
 
+    void signalStartegyResult(const QVariantMap& resultMap);
+
 private:
 
     void initSetting();
