@@ -39,6 +39,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11 console
 
+QMAKE_RPATHDIR += ./
+
+QMAKE_LFLAGS += -Wl,-rpath=./lib
+
 SOURCES += \
         DefineFields.cpp \
         FileSystemWatcher.cpp \
