@@ -10,8 +10,8 @@ int main(int argc, char *argv[])
 //    MainWindow w;
 //    w.hide();
     //添加当前目录作为库文件搜索路径
-    QString currentDir = QDir::currentPath();
-    QCoreApplication::addLibraryPath(currentDir);
+//    QString currentDir = QDir::currentPath();
+//    QCoreApplication::addLibraryPath(currentDir);
 
     return a.exec();
 }
