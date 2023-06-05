@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QDebug>
+#include <QSet>
 
 FileSystemWatcher* FileSystemWatcher::m_pInstance = Q_NULLPTR;
 
@@ -29,8 +30,10 @@ void FileSystemWatcher::directoryUpdated(const QString &path)
 
     QStringList newEntryList = dir.entryList(QDir::NoDotAndDotDot | QDir::AllDirs | QDir::Files, QDir::DirsFirst);
 
-    QSet<QString> newDirSet = QSet<QString>(newEntryList.begin(), newEntryList.end());
-    QSet<QString> currentDirSet = QSet<QString>(currEntryList.begin(), currEntryList.end());
+//    QSet<QString> newDirSet = QSet<QString>(newEntryList.begin(), newEntryList.end());
+//    QSet<QString> currentDirSet = QSet<QString>(currEntryList.begin(), currEntryList.end());
+    QSet<QString> newDirSet = QSet<QString>(newEntryList.toSet());
+    QSet<QString> currentDirSet = QSet<QString>(currEntryList.toSet());
 
     // 添加了文件
     QSet<QString> newFiles = newDirSet - currentDirSet;
