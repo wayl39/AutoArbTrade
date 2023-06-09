@@ -51,21 +51,21 @@ SOURCES += \
         SendFile.cpp \
         SettingsLogic.cpp \
         main.cpp \
-        MainWindow.cpp \
+#        MainWindow.cpp \
         protocol.cpp
 
 HEADERS += \
         DefineFields.h \
         FileSystemWatcher.h \
-        MainWindow.h \
+#        MainWindow.h \
         MyTcpSever.h \
         RecvFile.h \
         SendFile.h \
         SettingsLogic.h \
         protocol.h
 
-FORMS += \
-        MainWindow.ui
+#FORMS += \
+#        MainWindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
