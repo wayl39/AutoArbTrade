@@ -35,6 +35,10 @@ public:
     QSettings *getSetting() const;
     void setSetting(QSettings *setting);
 
+    // 解密
+    QString decode(const QString& str);
+    // 加密
+    QString encryption(const QString& str);
 signals:
     void signalResponseMsg(const QVariantMap& msgMap);
     void signalSettingFile(const QVariantMap& dataMap);

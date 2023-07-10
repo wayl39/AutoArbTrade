@@ -282,7 +282,7 @@ void SettingsLogic::initSetting()
     }
     // 设置管理员账号，密码
     CheckSettingValue(DefineFields::Admin_Account, "Admin");
-    CheckSettingValue(DefineFields::Admin_Password, "123456");
+    CheckSettingValue(DefineFields::Admin_Password, encryption("123456"));
     CheckSettingValue(DefineFields::Admin_MAC, QString());
     CheckSettingValue(DefineFields::Ip, "127.0.0.1");
     CheckSettingValue(DefineFields::Port, "8989");
@@ -741,4 +741,24 @@ QString SettingsLogic::UTF82GBK(QByteArray &inStr)
     p = utf8_bytes.data();
     str = p;
     return str;
+}
+
+QString SettingsLogic::decode(const QString &str)
+{
+    QByteArray tmp = str.toUtf8();
+    int index = 0;
+    foreach(auto ch, str){
+        tmp[index] = tmp[index] - 66;
+        index++;
+    }
+    return tmp;
+}
+
+QString SettingsLogic::encryption(const QString &str)
+{
+    QByteArray tmp = str.toUtf8();
+    for(int index = 0; index < str.size(); index++){
+        tmp[index] = tmp[index] + 66;
+    }
+    return tmp;
 }

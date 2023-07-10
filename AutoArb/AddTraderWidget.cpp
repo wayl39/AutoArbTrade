@@ -33,7 +33,7 @@ void AddTraderWidget::slotOkBtnClicked()
     QVariantMap dataMap;
     dataMap.insert(DefineFields::funcType, FuncType::AddTrader);
     dataMap.insert(DefineFields::UserId, ui->lineEdit_account->text());
-    dataMap.insert(DefineFields::PassWord, ui->lineEdit_password->text());
+    dataMap.insert(DefineFields::PassWord, SettingsLogic::GetInstance()->encryption(ui->lineEdit_password->text()));
     dataMap.insert(DefineFields::Mac, ui->lineEdit_mac->text());
     dataMap.insert(DefineFields::Path + ui->lineEdit_account->text(), ui->lineEdit_logAddr->text());
     SettingsLogic::GetInstance()->writeSetting(dataMap);

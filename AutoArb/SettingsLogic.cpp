@@ -145,6 +145,27 @@ void SettingsLogic::setSetting(QSettings *setting)
     m_settings = setting;
 }
 
+QString SettingsLogic::decode(const QString &str)
+{
+    QByteArray tmp = str.toUtf8();
+    int index = 0;
+    foreach(auto ch, str){
+        tmp[index] = tmp[index] - 66;
+        index++;
+    }
+    return tmp;
+}
+
+QString SettingsLogic::encryption(const QString &str)
+{
+    QByteArray tmp = str.toUtf8();
+    for(int index = 0; index < str.size(); index++){
+        tmp[index] = tmp[index] + 66;
+    }
+    return tmp;
+}
+
+
 void SettingsLogic::slotOnReadyRead()
 {
 //    qDebug() << __FUNCTION__;

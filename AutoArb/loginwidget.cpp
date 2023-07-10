@@ -75,7 +75,7 @@ void LoginWidget::on_btnLogin_clicked()
     QVariantMap msgMap;
     msgMap.insert(DefineFields::funcType, FuncType::Login);
     msgMap.insert(DefineFields::UserId, username);
-    msgMap.insert(DefineFields::PassWord, password);
+    msgMap.insert(DefineFields::PassWord, SettingsLogic::GetInstance()->encryption(password));
     msgMap.insert(DefineFields::Mac, macAddress);
     SettingsLogic::GetInstance()->logProcFunc(msgMap);
 }
